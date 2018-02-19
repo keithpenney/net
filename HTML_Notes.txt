@@ -1,0 +1,128 @@
+HTML5 Notes:
+
+General:
+    HyperText Markup Language
+    Case insensitive
+    Whitespace is ignored (condensed to single space)
+    Text markup elements made up an opening tag, content, then a closing tag
+    Several other elements (e.g. images, embedded content) are only a single tag.
+    <!-- Comments are wrapped in these monstrosities -->
+
+Basic Format:
+    <!DOCTYPE html>
+    <html lang="en-US">             <!-- Optionally provide a language for the page. -->
+      <head>
+        <meta charset="utf-8">
+        <title>Title of Page</title>
+      </head>
+      <body>
+        <p>Some page content</p>
+      </body>
+    </html>
+
+    Language:
+        The language of the entire document can be specified in the <html> tag
+        Alternatively, you can specify the language of a section of text with: <span lang="">...</span>
+        Language options: https://www.w3.org/International/articles/language-tags/
+
+    The Head:
+        The content of the HTML head is not displayed in the browser.
+        Contains info about author, page title, CSS, and other metadata.
+        <title></title>             The title appears at the top of the browser tab as the name of the page
+        <h1></h1>                   This title renders in the body; Should only be used once per page.
+        <meta charset="utf-8">      This is the best charset to use for most any language
+        <meta name="" content="">   'name' could be "author", "description"
+                                    Facebook uses "og:..." for Open Graph Data; Twitter uses "twitter:..."
+        <link ...>                  The link element is used to extend HTML with CSS or Javascript.
+                                    Also used for icons (see below).
+
+Special Characters:
+    <       &lt;
+    >       &gt;
+    "       &quot;
+    '       &apos;
+    &       &amp;
+    %       &percent;
+    +       &add;
+    =       &equal;
+    Comprehensive list: https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+
+Element Tags:
+    <NAME ATTR1="" ATTR2="" ...>
+        'NAME' is the attribute name (a reserved keyword)
+        'ATTR1' is an attribute (keyword) which can be assigned to a value ""
+        'ATTR2' is another attribute
+
+    <a></a>                     "Anchor"; can be a link
+    <p></p>                     Define a paragraph element
+    <em></em>                   Emphasized (italics)
+    <strong></strong>           Strong emphasis (typically bold)
+
+    <img>
+    <input>
+
+    Text Structure and Formatting:
+        Headers not only help formatting text for reading, they also help with search engine optimization (SEO), screen
+        readers for visually impaired, and successful javascript and css targetting.
+        <h1></h1>               Main page header
+        <h2></h2>               Subheader
+        ...                     Sub-subheader
+        <h6></h6>               Sub-sub-sub-sub-subheader
+
+Attributes:
+    
+
+Links:
+    <a href="http://...">
+    Attributes:
+        title                   Text which appears as a tooltip on mouse hover
+        target                  "_blank" : Makes the link open in a new tab rather than the current tab
+
+Images:
+    <img src="http://...">
+
+Input Fields:
+    <input type="text">         An input field for text.
+    
+    Attributes:
+        disabled                Boolean.  Disables (greys out) the field.
+
+Lists:
+    There are two types of lists: unordered and ordered.
+    Lists can be nested.
+    Unordered Lists:
+        Often rendered as a bullet list.
+        <ul>                        <!-- Begin the unordered list -->
+          <li>Some item</li>        <!-- A list item -->
+          <li>Another item</li>     <!-- Another list item -->
+          <li>A Manbearpig</li>     <!-- Yet another item -->
+        </ul>                       <!-- End the unordered list -->
+
+    Ordered Lists:
+        Often rendered as a numbered list.
+        <ol>
+          <li>The first item</li>   <!-- A list item -->
+          <li>The second item</li>  <!-- Another list item -->
+          <li>The last item</li>    <!-- Yet another item -->
+        </ol>
+
+CSS:
+    <link rel="stylesheet" href="my-css-file.css">      Link a css stylesheet to your HTML document.
+
+Icons:
+    <!-- third-generation iPad with high-resolution Retina display: -->
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="">
+    <!-- iPhone with high-resolution Retina display: -->
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="">
+    <!-- first- and second-generation iPad: -->
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="">
+    <!-- non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
+        <link rel="apple-touch-icon-precomposed" href="">
+    <!-- basic favicon -->
+        <link rel="shortcut icon" href="">
+
+Javascript:
+    <script src="my-js-file.js"></script>               Include a javascript file.  Note the closing tag!
+                                                        Note!  This is best included right before </body>
+
+
