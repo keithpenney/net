@@ -4,8 +4,7 @@ General:
     HyperText Markup Language
     Case insensitive
     Whitespace is ignored (condensed to single space)
-    Text markup elements made up an opening tag, content, then a closing tag
-    Several other elements (e.g. images, embedded content) are only a single tag.
+    Modern HTML should describe what content IS not how it LOOKS.
     <!-- Comments are wrapped in these monstrosities -->
 
 Basic Format:
@@ -47,7 +46,29 @@ Special Characters:
     =       &equal;
     Comprehensive list: https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
 
-Element Tags:
+Percent-Encoding:
+    (CR)    %0A     <!-- Carriage return (CR) and linebreak (LB) are best used together for compatibility %0A%0D -->
+    (LB)    %0D
+    (space) %20     |       :       %3A
+    !       %21     |       ;       %3B
+    "       %22     |       <       %3C
+    #       %23     |       =       %3D
+    $       %24     |       >       %3E
+    %       %25     |       ?       %3F
+    &       %26     |       @       %40
+    '       %27     |       [       %5B
+    (       %28     |       \       %5C
+    )       %29     |       ]       %5D
+    *       %2A     |   
+    +       %2B     |   
+    ,       %2C     |   
+    -       %2D     |   
+    .       %2E     |   
+    /       %2F     |   
+
+Text Elements:
+    Text markup elements include an an opening tag, content, then a closing tag
+    Several other elements (e.g. images, embedded content) are only a single tag.
     <NAME ATTR1="" ATTR2="" ...>
         'NAME' is the attribute name (a reserved keyword)
         'ATTR1' is an attribute (keyword) which can be assigned to a value ""
@@ -55,11 +76,18 @@ Element Tags:
 
     <a></a>                     "Anchor"; can be a link
     <p></p>                     Define a paragraph element
-    <em></em>                   Emphasized (italics)
+    <em></em>                   Emphasized (normally rendered italics).
     <strong></strong>           Strong emphasis (typically bold)
+    <code></code>               Used for code.  Stands out from normal text.
+    <pre></pre>                 Same as 'code' but retains whitespace.
+    <cite></cite>               Used for quote citation - provides a tooltip with original content info.
+    <sup></sup>                 Superscript.
+    <sub></sub>                 Subscript.
 
-    <img>
-    <input>
+    <!-- Try to avoid these if possible, but they still exist -->
+    <i></i>                     Italics.  Use only for foreign words, technical terms, a thought, etc.
+    <b></b>                     Bold.  Use for key words, product names, etc.
+    <u></u>                     Underline.  Avoid use - can be easily confused with links.
 
     Text Structure and Formatting:
         Headers not only help formatting text for reading, they also help with search engine optimization (SEO), screen
@@ -69,17 +97,216 @@ Element Tags:
         ...                     Sub-subheader
         <h6></h6>               Sub-sub-sub-sub-subheader
 
-Attributes:
-    
+    Links:
+        <a href="http://..." title="">
+        Attributes:
+            href                    The hypertext reference.  A file path, URL, text ID, or mailto:email address.  When 
+                                    linking to a text ID (defined previously with id=""), a pound sign "#" precedes the ID.
+            title                   Text which appears as a tooltip on mouse hover
+            target                  "_blank" : Makes the link open in a new tab rather than the current tab
+            download                Provide a default name for a linked file to be downloaded.
 
-Links:
-    <a href="http://...">
-    Attributes:
-        title                   Text which appears as a tooltip on mouse hover
-        target                  "_blank" : Makes the link open in a new tab rather than the current tab
+        Relative vs. Absolute URLs:
+            Whenever possible, use relative URLs (unless, obviously, linking to an external resource).  An absolute URL
+            starts with a lookup in a DNS server and so is more cumbersome to the network.
+
+        Linking to Email Addresses:
+            <a href="mailto:name@example.com&subject=A%20fun%20example&body=This%20is%20an%20email">Email Example</a>
+            If no email address is provided, a "new mail" window will still be opened in the default mail client.
+
+    Quotations:
+        Block Quotations:
+            The <blockquote> element will partition the quote into its own block.  It's helpful to use the 'cite'
+            attribute to point to the original URL from which you are quoting.
+            <blockquote cite="https://...">Here's a big block quote from this URL.</blockquote>
+
+        Inline Quotations:
+            This website says: <q cite="https://...">a short quote with no linebreaks.</q>
+
+        Despite the fact that we can include a "cite" attribute, it's most useful to include a <cite></cite> text
+        element in the text/link/quote body as most browsers don't do anything with the "cite" attribute.
+
+    Abbreviations:
+        The <abbr> element provides a tooltip on mouse hover for a short explanation of a term (typically the full form
+        of an abbreviation).
+        <abbr title="National Marlon Brando Look-Alikes">NAMBLA</abbr>
+
+    HTML Page Author:
+        We can put the page author name and details in the HTML head with:
+            <meta name="author" content="Keith Penney">
+        We can also use the <address> element to format the page author's contact info.
+            <address><p>Keith Penney, Oakland, CA, etc.</p></address>
+
+    Representing Code:
+        <code></code>       Represents computer code.  Formatted specially.
+        <pre></pre>         Same as <code> but preserves whitespace formatting.
+        <var></var>         Used as an inline reference to a code variable.
+        <kbd></kbd>         Used to designate keyboard entry (looks like terminal input)
+        <samp></samp>       A 'sample' of output (looks like terminal output)
+
+    Time and Date:
+        HTML provides special elements for marking up times and dates in a machine-readable format.
+            e.g. <time datetime="2018-02-19">February 19th, 2018</time>
+                 <time datetime="06-11">11 June</time>
+                 <time datetime="08:45">8:45 AM</time>
+        Full Datetime Format: yyyy-mm-ddThh:nn:ss.ccc-zz:zz
+            yyyy  = year (4 digits)
+            mm    = month (2 digits)
+            dd    = day (2 digits)
+            T     = Keyletter 'T' separates date and time
+            hh    = hour (2 digits; 24hr clock)
+            nn    = minutes (2 digits)
+            ss    = seconds (2 digits)
+            ccc   = milliseconds (3 digits)
+            zz:zz = timezone offset (e.g. -07:00 for PST).  The '-' can also be a '+' for Europe, Japan, etc.
+
+Page Layout Elements:
+    <header></header>   Header bar; typically a logo or site name that persists across pages.
+    <nav></nav>         Navigation bar; normally contains navigation links that persists across pages.
+    <main></main>       Main content; the big section in the middle where all the content unique to the page goes.
+                        Should only be used once per page, directly inside <body> (not nested in anything else)
+      <article></article>   A subsection of <main>; a block of related text that stands alone (e.g. a blog post)
+      <section></section>   A subsection of <main>; similar to an article.
+      <div></div>       Non-semantic.  Used if you can't think of a more appropriate semantic block.
+    <aside></aside>     A sidebar; often placed inside <main>.  Additional related info 
+    <footer></footer>   A footer; contains (e.g.) sitemap, contact info, press, careers, copyright, etc.
+
+    <br>            Forced linebreak.  Use to manually structure text linebreaks.
+    <hr>            Horizontal rule (normally a horizontal line); breaks up unrelated sections of content.
+
+Attributes:
+    lang=""                     A language attribute can be added to any text element.  It helps browsers, translators.
+    href=""                     Hypertext REFerence.  Link to a URL.  Can be applied to any text element (typically <a>)
+    title=""                    Define a tooltip on mousehover for links.
+    id=""                       Specify an ID for linking (usually for a heading text)
 
 Images:
-    <img src="http://...">
+    Images are embedded with the empty element <img> and its attributes.
+        <img src="http://..." alt="A description of the image.">
+    Attributes:
+        src=""      The source (path, URL) of the image.
+        alt=""      Alternate text which is displayed if the image cannot be.  Also read by screen readers.
+                    Do not include alt text for decorative images - only for content.
+        width=""    Specify the width of the image in pixels.
+        height=""   Specify the height of the image in pixels.
+                    If height/width specified, the browser leaves space for the image even if it can't load.
+        title=""    Provide a title for the image which appears as a tooltip on mouse hover.
+
+    Figures and Captions:
+        To properly associate a caption to an image (suitable for screen readers), it's best to use the format
+        containers <figure> and <figcaption> introduced in HTML5.
+        <!-- Example -->
+        <figure>
+          <img src=".../pic.jpg"
+               alt="A picture of visible stuff.">
+          <figcaption>This picture is dope.  This caption is also really good.</figcaption>
+        </figure>
+
+    Icons:
+        <!-- basic favicon -->
+            <link rel="shortcut icon" href="">
+        <!-- third-generation iPad with high-resolution Retina display: -->
+            <link rel="apple-touch-icon-precomposed" sizes="144x144" href="">
+        <!-- iPhone with high-resolution Retina display: -->
+            <link rel="apple-touch-icon-precomposed" sizes="114x114" href="">
+        <!-- first- and second-generation iPad: -->
+            <link rel="apple-touch-icon-precomposed" sizes="72x72" href="">
+        <!-- non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
+            <link rel="apple-touch-icon-precomposed" href="">
+
+    Responsive Design:
+        Responsive design is web design for a vast variety of different screen sizes.  New features in HTML5 enable
+        much greater control over displaying images for different screen sizes and resolutions.
+        <!-- Example -->
+        <img srcset="pic-320w.jpg 320w,         <!-- srcset syntax: FILENAME.jpg WIDTHw -->
+                     pic-480w.jpg 480w,         <!-- 'w' is used for the image's width in pixels, not 'px'-->
+                     pic-800w.jpg 800w"
+             sizes="(max-width: 320px) 280px,   <!-- sizes syntax: MEDIA-CONDITION SLOT-WIDTHpx -->
+                    (max-width: 480px) 440px,   <!-- the 'slot width' is the alotted width for the image -->
+                    800px"
+             src="pic-800w.jpg" alt="A picture of something">
+
+Vector Images - SVG:
+    SVG is an XML-based language for describing vector images.  Interestingly, SVG 'images' can be opened in a
+    text editor!  Try it!
+        <!-- Simple SVG Example -->
+    <svg version="1.1" baseProfile="full" width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="black" />
+      <circle cx="150" cy="100" r="90" fill="blue"  />  <!-- center (cx, cy), radius r -->
+    </svg>
+
+    Including SVG Images:
+        Using <img>:
+            You can include SVG graphics as normal images with the <img> element.
+            Pros: simple.  Cons: cannot manipulate with JavaScript or external CSS stylesheets
+        Include Directly with <svg>:
+            You can include the SVG code directly as in the above example.
+            Pros: can reduce loading time if simple; can assign classes and IDs to elements w/in the SVG
+            Cons: makes duplication difficult; increases code size/complexity; browser cannot cache as it would <img>
+        Include as iFrame: <iframe src="my-image.svg" width="500" height="200" sandbox>
+            This is not a good approach.  Tends to not be supported properly.
+
+Video and Audio:
+    HTML5 introduced new elements that enable native embedding of video and audio as well as JavaScript APIs to
+    format and manipulate them.
+    Video:
+        A quick note on video formats.  "WebM" and "MP4" are 'container formats' which contain separately formatted
+        audio and video.  WebM packages Ogg Vorbis audio with VP8/VP9 video and works best with Firefox and Chrome.
+        MP4 packages AAC or MP3 audio with H.264 video and works best with IE and Safari.
+            <!-- Basic Example -->
+        <video src="rabbit.webm" controls>
+          <p>It looks like your browser doesn't support HTML5 video.  Here's a link to the video: 
+             <a href="rabbit.webm">Download video</a></p>
+        </video>
+            <!-- Alternatively provide different source types for browser compatibility -->
+        <video controls>
+          <source src="rabbit.webm" type="video/webm">
+          <source src="rabbit.mp4" type="video/mp4">
+          <p>Browser doesn't support.  Link: <a href="rabbit.mp4">download</a></p>
+        </video>
+
+        Attributes:
+            src=""      Same as image 'src' attribute.  A path or URL.
+            controls    This tells the browser to use the default controls for the video.  Otherwise, provide custom.
+            autoplay    Don't use this.  For real.
+            loop        Also don't use this.
+            muted       A nice feature to default the video to muted.
+            poster=""   A splash image displayed before the video is played.
+            preload=""  Buffer the video file.  Values: "none", "auto", or "metadata"
+
+        Captions and Subtitles:
+            You can make your own captions file using WebVTT (simple syntax) and including it with the video as:
+                <track kind="subtitles" src="my-subtitle-track.vtt" srclang="en">
+            This not only improves accessibility, but also helps with search engine optimization (SEO)
+
+    Audio:
+        The <audio> element is basically the same as <video> but with the visual components removed.
+
+Other Embedded Media:
+    iFrames:
+        The <iframe> element allows for embedded entire webpages in another webpage.  They are what is typically used
+        when embedding a Google Map or a YouTube video.  Comes with some security concerns.
+            <!-- Example -->
+        <iframe src="https://..." width="100%" height="500" frameborder="0" allowfullscreen sandbox>
+          <p> It looks like your browser does not support iFrames.  Here's a link instead: <a href="https://...">The page</a></p>
+        </iframe>
+        
+        Attributes:
+            allowfullscreen     Allows the iframe to be placed into fullscreen mode.
+            frameborder=""      Values: "1" draws a border, "0" does not.  Recommended to just use CSS.
+            sandbox             Requests heightened security settings.
+
+        Mitigating Security Concerns:
+            Never embed from HTTP, only from HTTPS (encrypted).
+            Always use the 'sandbox' attribute.  This disables all permissions of the iFrame.  If you need to add
+            permissions, give them individually with sandbox="" (see 'sandbox' in HTML5 specs)
+                Never give both "allow-scripts" and "allow-same-origin" to a 3rd party iFrame.  This can be bad!
+            Configure your content security policy (CSP) directives (see below) for optimum security.
+
+    The <embed> and <object> elements:
+        These are mostly used in legacy systems and are not recommended for new designs.  They were used to embed
+        pdfs, applets, flash, etc. which are all being phased out.
+        Note: pdfs are still actively supported, but modern design recommends linking to pdf docs rather than embedding.
 
 Input Fields:
     <input type="text">         An input field for text.
@@ -89,6 +316,7 @@ Input Fields:
 
 Lists:
     There are two types of lists: unordered and ordered.
+    There is also the related 'description list' (see below).
     Lists can be nested.
     Unordered Lists:
         Often rendered as a bullet list.
@@ -106,23 +334,47 @@ Lists:
           <li>The last item</li>    <!-- Yet another item -->
         </ol>
 
+    Description List:
+        A list of description terms (<dt></dt>) and description definitions (<dd></dd>) for each term.
+        <dl>
+          <dt>LOL</dt>
+            <dd>Laugh Out Loud.  Typically used when not laughing at all.</dd>
+          <dt>FML</dt>
+            <dd>Fudge My Life.  Typically used by overly priviledged children when mildly inconvenienced.</dd>
+          <dt>HTML</dt>
+            <dd>HyperText Markup Language.  Still kicking after all these years.</dd>
+        </dl>
+
+Debugging:
+    Debugging HTML can be tricky because browsers parse HTML permissively, meaning it will render the document
+    regardless of syntax or logic errors that may be present.
+    Some helpful debugging tools:
+        Browser Developer Tools - built into most modern browsers.
+            DOM Inspector allows you to compare the HTML to the rendered output and interact with the page in realtime.
+        HTML Validator - Markup Validation Services.
+            The W3C standards organization maintains an HTML markup validation service which provides a nice list of
+            errors and line numbers.
+
+CSP (Content Security Policy) Directives:
+    The CSP directives are a set of HTML5 header metadata options that can be set for heightened security.
+    Syntax:
+        Content-Security-Policy: <policy-directive>; <policy-directive>
+    Fetching Directives:
+        frame-src       Specifies valid sources for nested browsing via <frame> and <iframe> elements.
+        img-src         Specifies valid sources for images and favicons.
+        media-src       Specifies valid sources for <video>, <audio>, and <track>
+        script-src      Specifies valid sources for JavaScript
+        style-src       Specifies valid sources for stylesheets (CSS).
+    Navigation Directives:
+        form-action     Restricts the URLs which can be used as a target for form submissions.
+        frame-ancestors Specifies valid parents which may embed a page using <iframe>, <object>, <embed>, etc.
+    Other Directives:
+        block-all-mixed-content Prevents loading any HTTP assets when page is loaded using HTTPS
+
 CSS:
     <link rel="stylesheet" href="my-css-file.css">      Link a css stylesheet to your HTML document.
-
-Icons:
-    <!-- third-generation iPad with high-resolution Retina display: -->
-        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="">
-    <!-- iPhone with high-resolution Retina display: -->
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="">
-    <!-- first- and second-generation iPad: -->
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="">
-    <!-- non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
-        <link rel="apple-touch-icon-precomposed" href="">
-    <!-- basic favicon -->
-        <link rel="shortcut icon" href="">
 
 Javascript:
     <script src="my-js-file.js"></script>               Include a javascript file.  Note the closing tag!
                                                         Note!  This is best included right before </body>
-
 
