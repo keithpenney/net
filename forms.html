@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Example: Forms</title>
+    <style>
+      form {
+        /* Apparently this is a CSS comment */
+        margin: 0 auto;
+        width: 500px;
+        padding: 1em;
+        border: 1px solid #CCC; /* Add a nice border */
+        border-radius: 0.5em;   /* Add a nice fillet to the corners */
+      }
+      form div + div {
+        margin-top: 1em;
+      }
+      label {
+        display: inline-block;
+        font: 1em sans-serif;
+        width: 120px;
+        text-align: right;
+      }
+      input, textarea {
+        font: 1em sans-serif;
+        width: 300px;
+        box-sizing: border-box;
+        border: 1px solid #999;
+      }
+      input:focus, textarea:focus {
+        border-color: #000;
+      }
+      textarea {
+        vertical-align: top;
+        height: 5em;
+      }
+      .button {
+        padding-left: 120px; /* same size as label elements */
+      }
+      button {
+        margin-left: .5em; /* A little extra to make it pretty */
+      }
+      select {
+        width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <h1>Example: Forms</h1>
+    <form method="/my-form-handler" method="post">
+      <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="user_name">
+      </div>
+      <div>
+        <label for="mail">Email:</label>
+        <input type="email" id="mail" name="user_mail" placeholder="example@clownpenis.fart">
+      </div>
+      <div>
+        <label for="mood">How you feel?</label>
+        <select id="mood" name="user_mood">
+          <option>Freaking amazing!</option>
+          <option>Great!</option>
+          <option selected>Ok.</option>
+          <option>Not well.</option>
+          <option>Pretty Awful.</option>
+          <option>Ah shit! @$1#</option>
+        </select>
+      </div>
+      <div>
+        <label for="msg">Message:</label>
+        <textarea id="msg" name="user_message">What happens here?</textarea>
+      </div>
+      <div>
+        <button type="submit">Send your message</button>
+      </div>
+      <div>
+        <label for="uint8">ID (byte):</label>
+        <input type="number" name="user_uint8" id="uint8" min="0" max="255" step="1">
+      </div>
+      <div>
+        <label for="buffer">Buffer:</label>
+        <input type="range" name="user_buffer" id="buffer" min="0" max="100" step="10">
+
+      </div>
+    </form>
+  </body>
+</html>

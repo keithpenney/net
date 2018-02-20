@@ -180,6 +180,81 @@ Attributes:
     title=""                    Define a tooltip on mousehover for links.
     id=""                       Specify an ID for linking (usually for a heading text)
 
+Lists:
+    There are two types of lists: unordered and ordered.
+    There is also the related 'description list' (see below).
+    Lists can be nested.
+    Unordered Lists:
+        Often rendered as a bullet list.
+        <ul>                        <!-- Begin the unordered list -->
+          <li>Some item</li>        <!-- A list item -->
+          <li>Another item</li>     <!-- Another list item -->
+          <li>A Manbearpig</li>     <!-- Yet another item -->
+        </ul>                       <!-- End the unordered list -->
+
+    Ordered Lists:
+        Often rendered as a numbered list.
+        <ol>
+          <li>The first item</li>   <!-- A list item -->
+          <li>The second item</li>  <!-- Another list item -->
+          <li>The last item</li>    <!-- Yet another item -->
+        </ol>
+
+    Description List:
+        A list of description terms (<dt></dt>) and description definitions (<dd></dd>) for each term.
+        <dl>
+          <dt>LOL</dt>
+            <dd>Laugh Out Loud.  Typically used when not laughing at all.</dd>
+          <dt>FML</dt>
+            <dd>Fudge My Life.  Typically used by overly priviledged children when mildly inconvenienced.</dd>
+          <dt>HTML</dt>
+            <dd>HyperText Markup Language.  Still kicking after all these years.</dd>
+        </dl>
+
+Tables:
+    HTML tables can be very useful for laying out tabular data.
+    Tables are NOT to be used for general struturing of a page layout.
+    Typically you define the structure of a table in HTML, then apply custom styling in CSS to make it pretty.
+    Elements:
+        <table></table>     The main table element.  Should wrap the entire table.
+        <td></td>           Table Data.  A single cell of the table.
+        <tr></tr>           Table Row.  Start a new row of the table.
+        <th></th>           Table Header.  Same as <td></td> but formats differently for a row/column header.
+    Attributes:
+        rowspan=""          Define a number of rows to span across.  Effectively adds a cell to subsequent rows.
+        colspan=""          Define a number of columns to span across.
+        scope=""            Used with <th>.  Can be "col" or "row".  Define what the header applies to.
+                            Can also be "colgroup" and "rowgroup" if header applies to span of rows/cols.
+        id=""               Used with <th> for accessibility.  Define an ID name for that row/col.
+        headers=""          A list of ID's.  Used with <td>.  Defines exactly where the cell sits in the table.
+                            E.g. for col id="X", row id="Y", headers="X Y" (or "Y X")
+
+    Applying Styling:
+        Applying styling to a row is simple - just reference a CSS class (or explicitly define the style) in the <tr>
+        element for the desired row.
+        Applying styling for columns would be harder because you'd normally have to duplicate the styling for each cell
+        in a column.  Fortunately, there's a better way.  We can define the styling for each column in a table by using
+        the <colgroup> and <col> elements.
+        <!-- Example: Styling a three-column table -->
+        <table>
+          <colgroup>
+            <col>                                   <!-- The first column is unstyled -->
+            <col style="background-color: blue">    <!-- The second column has a blue background fill -->
+            <col style="border:4px solid #000000">  <!-- The third column has a black border -->
+          </colgroup>
+          <tr>
+            <!-- All the table content is omitted for brevity -->
+          </tr>
+        </table>
+
+    Optional Elements:
+        <colgroup></colgroup>   See styling above.
+        <col></col>             See styling above.
+        <caption></caption>     A brief description of the table.  Helpful for accessibility.  Directly follows <table>
+        <thead></thead>         Table header.  Useful for CSS styling.  Wraps <tr></tr> for the header row.
+        <tfoot></tfoot>         Table footer.  Same as <thead> but for the footer row.
+        <tbody>                 Table body.  Same as <thead> but for the body content.
+
 Images:
     Images are embedded with the empty element <img> and its attributes.
         <img src="http://..." alt="A description of the image.">
@@ -321,42 +396,109 @@ Other Embedded Media:
         pdfs, applets, flash, etc. which are all being phased out.
         Note: pdfs are still actively supported, but modern design recommends linking to pdf docs rather than embedding.
 
-Input Fields:
-    <input type="text">         An input field for text.
-    
+Forms and Input Fields:
+    An HTML form provides ability to interface with the user and send/receive data between the user and a server.
+    By itself, an HTML form can't really do anything - it needs to be connected to a server to handle the data posted
+    by the form.
+    Note: if a widget is used outside of a <form>, it will have no intrinsic behavior and custom JavaScript behavior
+    must be defined for it to have any function (can instead use the 'form' attribute below).
+
+    Elements and Attributes:
+        <form></form>           Formally defines a form.  All HTML forms begin with this.
+            action=""           Defines the location (URL) where the form's data should be sent after submission.
+            method=""           Can be "get" or "post".  Defines an HTTP method to send data with.
+        <input>                 A single-line text input widget.
+            type=""             Defines the type of <input>.  Can be "text", "email", "submit", "radio", "checkbox"
+            value=""            Define a default value (returns to this on reset).
+            placeholder=""      Like "value" but it disappears when user enters content.
+            readonly            Boolean.  User cannot modify the value.
+            length=""           Maximum number of characters which can be entered.
+            size=""             The width of the widget.
+            checked             Boolean.  Used with radio button or checkbox.  Define default state.
+        <textarea></textarea>   A multi-line text input widget.
+            cols=""             Number of columns.  Default is 20
+            rows=""             Number of visible rows.
+            wrap=""             Define how control is wrapped.  Can be "hard" or "soft"
+        <button></button>       A clickable button.  The button's displayed content goes between the tags.
+            type=""             Can be "reset" (reset all widgets), "submit" (sends form's data to URL in form's
+                                "action" attribute), or "button" (default; does nothing w/o JavaScript customization)
+        <label></label>         Create a text label associated with an input widget (sticks to the widget). Clickable!
+            for=""              The ID of the associated widget.  Improves accessibility.
+        <fieldset></fieldset>   Creates a box around widgets contained within its tags.  Improves accessibility.
+                                Should always be used when using a set of radio buttons.
+        <legend></legend>       Creates a label for a <fieldset> box
+        <select></select>       Create a select (drop-down) box.
+            multiple            Boolean.  Allow multiple selections.
+        <option></option>       Add an option to a <select> or <datalist> box.
+            selected            Boolean.  Default selected option when form loads.
+        <optgroup></optgroup>   Define a group of options for a <select> or <datalist> box.  Best for long lists.
+        <datalist></datalist>   Create an autocomplete box.  Text input with suggested values.
+
     Attributes:
+        id=""                   A unique ID corresponding to that widget.
+        name=""                 A name which will be 'stapled' to any data originating from this widget.
         disabled                Boolean.  Disables (greys out) the field.
+        autofocus               Boolean.  Makes this widget the default focus when the page loads.  Highlander rules.
+        value=""                The element's initial value.
+        form=""                 Associate an element with a <form> even if it's not included w/in it.  New in HTML5.
+        multiple                Boolean.  Allows multiple entries in a single field.
+                                Used with <input> of type "email", "password", "search", "tel", "url", etc.
 
-Lists:
-    There are two types of lists: unordered and ordered.
-    There is also the related 'description list' (see below).
-    Lists can be nested.
-    Unordered Lists:
-        Often rendered as a bullet list.
-        <ul>                        <!-- Begin the unordered list -->
-          <li>Some item</li>        <!-- A list item -->
-          <li>Another item</li>     <!-- Another list item -->
-          <li>A Manbearpig</li>     <!-- Yet another item -->
-        </ul>                       <!-- End the unordered list -->
+    Advanced Input Widgets:
+        We can use advanced features of input widgets to perform client-side data verification (relieve some pressure
+        on our server side and verify data before sending).  The widget will highlight and provide a tooltip if the
+        data entered does not match the specified values.
+        <!-- Example -->
+        <input type="number" name="user_uint8" id="uint8" min="0" max="255" step="1">
+        <!-- This input takes only whole numbers (step="1") between 0 and 255 inclusive and includes a spinner -->
 
-    Ordered Lists:
-        Often rendered as a numbered list.
-        <ol>
-          <li>The first item</li>   <!-- A list item -->
-          <li>The second item</li>  <!-- Another list item -->
-          <li>The last item</li>    <!-- Yet another item -->
-        </ol>
+        Note! If using <input type="range"> (i.e. a 'slider bar'), the value of the slider is not displayed on the
+        page.  This functionality requires JavaScript.
 
-    Description List:
-        A list of description terms (<dt></dt>) and description definitions (<dd></dd>) for each term.
-        <dl>
-          <dt>LOL</dt>
-            <dd>Laugh Out Loud.  Typically used when not laughing at all.</dd>
-          <dt>FML</dt>
-            <dd>Fudge My Life.  Typically used by overly priviledged children when mildly inconvenienced.</dd>
-          <dt>HTML</dt>
-            <dd>HyperText Markup Language.  Still kicking after all these years.</dd>
-        </dl>
+        Date and Time:
+            HTML5 introduced new intput types to simplify collecting date/time values in forms.  All these can use
+            the 'min' and 'max' attributes to constrain the range of acceptable values.
+            "datetime-local"    Provides a widget to pick a date and time w/o timezone information.
+            "month"             Pick a month of the year.
+            "time"              Pick a time value.
+            "week"              Pick a week number and year.
+            "date"              Choose a generic date.
+
+        Color Chooser:
+            <input type="color"...> provides a widget to select a color (visually and textually).  New in HTML5
+
+        File Chooser:
+            <input type="file"...> provides a widget to select a file (dialog).
+                accept=""       Provide a wildcard for e.g. file extensions, path folders
+                multiple        Boolean.  Allow multiple files selected.
+
+        Hidden Content:
+            Sometimes it's useful to send hidden content from an HTML form.
+            <input type="hidden" name="" value=""> Must set name and value for hidden content.
+
+        Image Button:
+            <input type="image" alt="Click here" src="" width="" height="" />
+            Creates a button that behaves like a "submit" button but it's visually represented by an image.
+            When the value is sent, it submits the (x, y) coordinates where the user clicked on the image.
+
+        Progress Bar:
+            <progress max="100" value="75">75/100</progress>
+            This creates a progress bar whose value obviously must be updated by JavaScript.
+            The content inside the tags is used as fallback for unsupported browsers or screen readers.
+
+        Meter Bar:
+            <meter min="0" max="100" value="75" low="33" high="66" optimum="50">75</meter>
+            A meter bar can be a good visual indicator of a fluctuating value (e.g. password strength).
+                min/max         Defines the min/max values of the meter.
+                low/high        Defines the threshold for a "high" value and a "low" value (renders differently).
+                optimum=""      Defines an optimum value.
+
+    Sending Form Data:
+        All data entered into an HTML form must be sent to a separate page (server) to process.  The <form> element's
+        "action" attribute defines the page which will receive the form data.
+        To prepare our data for sending, we need to give every input field a unique name, using the "name" attribute.
+        On the receiving end, the server will see each piece of data arrive with its associated "name"
+
 
 Debugging:
     Debugging HTML can be tricky because browsers parse HTML permissively, meaning it will render the document
