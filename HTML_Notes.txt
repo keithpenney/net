@@ -217,7 +217,7 @@ Images:
     Responsive Design:
         Responsive design is web design for a vast variety of different screen sizes.  New features in HTML5 enable
         much greater control over displaying images for different screen sizes and resolutions.
-        <!-- Example -->
+        <!-- Example: Resolution Switching -->
         <img srcset="pic-320w.jpg 320w,         <!-- srcset syntax: FILENAME.jpg WIDTHw -->
                      pic-480w.jpg 480w,         <!-- 'w' is used for the image's width in pixels, not 'px'-->
                      pic-800w.jpg 800w"
@@ -225,6 +225,19 @@ Images:
                     (max-width: 480px) 440px,   <!-- the 'slot width' is the alotted width for the image -->
                     800px"
              src="pic-800w.jpg" alt="A picture of something">
+
+        Art Direction:
+            Art direction is when you decide you want to replace an image (e.g. re-crop) rather than simply resize for
+            a screen of a different resolution or aspect ratio.  In this case, you could do something like this:
+            <!-- Example: Art Direction -->
+            <picture>
+              <source media="(max-width: 799px)" srcset="pic-480w-crop.jpg">
+              <source media="(min-width: 800px)" srcset="pic-800w.jpg">
+              <img src="pic-800w.jpg" alt="A picture of something">
+            </picture>
+            In this example, the "media" attribute takes a "media condition" as does the "sizes" attribute in the above
+            example.  The "media" attribute should only be used if you need art direction.  Otherwise, use the example
+            above or the "type" attribute (to switch between types based on browser compatibility).
 
 Vector Images - SVG:
     SVG is an XML-based language for describing vector images.  Interestingly, SVG 'images' can be opened in a
