@@ -526,6 +526,34 @@ CSP (Content Security Policy) Directives:
     Other Directives:
         block-all-mixed-content Prevents loading any HTTP assets when page is loaded using HTTPS
 
+HTTP Methods:
+    HTTP (HyperText Transfer Protocol) specifies several methods for sending and receiving data across the web.
+    Each HTTP request consists of a header and a body.
+    Header: global metadata about the browser
+    Body:   information specific to the request
+    HTTP requests can be viewed using the developer tools (e.g. Tools->Web Developer->Network on Firefox)
+
+    GET:
+        The HTTP GET request asks a server to send back a given resource.  The body of the GET request is emtpy.
+        If an HTML form sends a GET request to a server, the form data is sent to the server directly appended to the
+        server URL (with an intervening '?').  Data are delimited with ampersands '&'
+            <!-- Example --> www.foo.com/?myname=Keef&myage=29
+        The actual GET request looks like this:
+            GET /?myname=Keef&myage=29 HTTP/1.1
+            Host: foo.com
+
+    POST:
+        The HTTP POST request asks a server to consider the data provided in the body and send back a response (rather
+        than just a known stored value as in the GET method).  If an HTML form sends a POST request to a server, the
+        form data is appended to the body of the HTTP request.  In this case, you see nothing extra in the URL.
+        From the previous example, the POST request looks like this:
+            POST / HTTP/1.1                                     <!--        -->
+            Host: foo.com                                       <!-- |    | -->
+            Content-Type: application/x-www-form-urlencoded     <!-- Header -->
+            Content-Length: 20                                  <!-- |    | -->
+
+            myname=Keef&myage=29                                <!--  Body  -->
+
 CSS:
     <link rel="stylesheet" href="my-css-file.css">      Link a css stylesheet to your HTML document.
 
