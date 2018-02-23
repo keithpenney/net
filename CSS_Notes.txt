@@ -1,0 +1,151 @@
+CSS Notes
+
+General:
+    "Cascading Style Sheets"
+    CSS is a language for specifying how a document is presented visually.  The document can be HTML, XML, SVG, etc.
+    Browsers apply CSS "rules" to the document; converts both into a Document Object Model (DOM)
+    /* Comments go inside C-like multiline comment characters. */
+    If two conflicting styles are applied to the same element, the one defined LAST in the CSS code wins.
+
+CSS with HTML:
+    An HTML document can either link to an external CSS file or contain the CSS code directly in the HTML head.
+    The latter is called an "internal stylesheet"
+    <!-- Example -->
+    <html>
+      <head>
+        <link rel="stylesheet" href="myCSS.css">        <!-- A link to an external CSS file -->
+        <style>
+          ...                                           /* CSS code can go directly here between the <style></style> */
+        </style>
+      </head>
+    </html>
+
+    CSS can also be applied in-line to individual elements via the "style" attribute.  This is not recommended.
+
+
+CSS Syntax:
+    CSS code is a series of rules (declarations) applying to a "selector", which consist of "properties" and "values".
+    Selector: A pattern that matches some element(s) in the HTML document.  Can be a list of patterns (comma-separated)
+    Properties: human-readable identifiers indicating which visual features you want to change (e.g. font, background)
+    Values: what you want to change the property to (e.g. a color, font-family, size, etc.)
+    If a value provided for a property is not recognized by the browser, it is considered invalid and is ignored.
+
+    /* Basic Syntax */
+    selectorList {              /* "selectorList" is: selector[:pseudo-class][::pseudo-element][, more selectorLists] */
+      property: value;          /* Note the mandatory colon ":" and semicolon ";" */
+      ...                       /* More declarations can go here */
+    }                           /* This whole structure is called a "declaration block" */
+
+    At-Rules (@-rules):
+        A CSS rule with a selector beginning with the @ sign are called "at-rules" (or "@-rules").
+        These are used to convey metadata or to conditionally apply nested rules.
+        E.g. to apply a rule to all devices with screen width above 800px, we can nest the rule inside an @-rule:
+            /* @-rule example */
+            @charset "utf-8"                /* Declare the charset to be utf-8.  Must be first line of the file */
+            @import local("myfont.ttf")     /* Import a locally-stored font */
+            @media (min-width: 801px) {     /* This @-rule only applies to media devices with screen width > 800px */
+              body {
+                margin: 0 auto;
+                width: 800px;               /* We can safely set 800px since we filtered out all incompatible devices */
+              }
+            }
+        Examples:
+            @charset            Specify the character encoding used in the stylesheet e.g. "utf-8"
+                                Must be the first element in CSS file.  Cannot be used in HTML <style> element.
+            @import             Import a style rule from another sheet.  Must come directly after @charset
+            @font-face          Specify a font.  url("https://.../myFont.ttf"), local("./myFont.ttf")
+            @media              Applies nested only if the hardware device matches the tested condition(s).
+            @supports           Applies nested only if the browser supports the tested feature(s).
+            @document           Applies nested only if the current page (HTML doc) matches the tested condition(s).
+
+Selectors:
+    Simple Selectors: Match elements by element type, class, or id
+    Attribute Selectors: Match elements based on attributes/attribute values
+    Pseudo-classes: Match elements that exist in a certain state (e.g. "disabled", "focus", "hover")
+    Pseudo-elements: Match parts of elements based on their position relative to an element (e.g. first in line)
+    Combinators: A combination of two or more selectors to specify an interection between two categories.
+    Selector List: You can of course apply the same declaration block to multiple selectors
+    Universal Selector: The asterisk "*" applies to all elements.  Mostly only used in combinators.
+
+    Class Selectors:
+        Any HTML element can be given a "class" attribute which is a space-separated list of user-generated names
+        These class names can then be treated as selectors in CSS when preceded by a period "."
+
+    ID Selectors:
+        Any HTML element can be given an "id" attribute which is UNIQUE to that object.
+        A class can apply to many objects, and id can only apply to one!  UB occurs if the same id is repeated.
+        ID names are treated as selectors in CSS when preceded by a pound sign "#"
+
+    Class/ID Example:
+        /* -- CSS -- */
+        .fancy {                    /* A class name */
+          font-family: cursive;
+        }
+        .red {                      /* Another class name */
+          color: red;
+        }
+        #keef {                     /* An ID name.  Applies to only ONE element */
+            background-color: #DDDDDD;
+            text-shadow: 1px 1px 1px black;
+        }
+        <!-- HTML -->
+        <h1 id="keef">This is a unique object.  We'll give it an ID name.</h1>
+        <div class="fancy">This text is the 'fancy' class</div>
+        <p class="red">This text is the 'red' class</p> 
+        <div class="red fancy">This text implements both the 'fancy' class AND the 'red' class</div>
+
+
+Common Properties and Values:
+    Syntax: Possible literal values are contained within braces {} and separated by bars |
+            Alternate equivalent values are provided in parentheses ()
+            [N] stands for any positive number in decimal base
+            [H] stands for any positive digit in hexadecimal base
+            [b] stands for any positive integer between 0 and 255 (a byte)
+            Regex-like syntax used for many related values (e.g. "[1-9]00" can be "100" or "800" but not "110" or "1300")
+
+    Shorthand Properties:
+        Some properties allow specification of several properties at once, which can save a lot of space.
+        padding:            <padding-top> || <padding-right> || <padding-bottom> || <padding-left>
+        background:         <background-color> || <background-image> || <background-position> || <background-repeat> || <background-scroll>
+        text-decoration     <text-decoration-line> || <test-decoration-style> || <text-decoration-color>
+        text-shadow
+
+    Text Elements:
+        color               {<color> | #[HHHHHH] | rgb([b], [b], [b]) | hsl([N], [N]%, [N]%) | currentcolor}
+        font-family         {<family-name> | <generic-family>} /* Can be a list of acceptable values.  See "Fonts" below */
+        font-size           {xx-small | x-small | small | medium | large | x-large | xx-large | [N]px | [N]em | [N]%}
+                            /* Note: when specifying a percentage, it is relative to the parent's font size. */
+        font-style          {normal | italic | oblique}
+        font-weight         {normal (400) | bold (700) | lighter | bolder | [1-9]00} /* "...er" relative to parent weight*/
+
+        
+        text-decoration-line    {none | underline | overline | line-through} /* Can be combination of any of these */
+        text-decoration-style   {solid | double | dotted | dashed | wavy} /* Applies to the 'line' portion */
+        text-decoration-color   {<color> | #[HHHHHH] | rgb([b], [b], [b]) | hsl([N], [N]%, [N]%) | currentcolor}
+
+Fonts:
+    Due to the complexity and shear number of fonts available, let's give them their own section.
+    The 'font-family' property can take either a literal font name (in quotes) or a <family-name> or <generic-family>
+
+    Font Families: (Generic name listed last)
+        .serif {
+            font-family: Times, Times New Roman, Georgia, serif;
+        }
+        .sansserif {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+        }
+        .monospace {
+            font-family: Lucida Console, Courier, monospace;
+        }
+        .cursive {
+            font-family: cursive;
+        }
+        .fantasy {
+            font-family: fantasy;
+        }
+
+    The <color> Datatype:
+        Anything that accepts a <color> datatype can accept a ridiculous number of names for colors.
+        Examples: red, green, purple, teal, azure, blanchedalmond, mediumorchid
+        A full list: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
+

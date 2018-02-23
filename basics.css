@@ -1,0 +1,29 @@
+h1 {                            /* This applies to all "h1" elements */
+  color: blue;
+  background-color: #DDDDDD;
+  font-family: sans-serif;
+  border: 1px solid black;
+}
+
+p {                             /* This applies to all "p" elements */
+  color: teal;
+}
+
+li {
+  color: #AA22AA;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+#keef {                         /* An ID name.  Applies to only ONE element */
+    background-color: #DDDDDD;
+    text-shadow: 1px 1px 1px black;
+    color: white;
+}
+
+.fancy {                        /* This is a custom class name */
+  font-family: cursive;
+}
+.red {                          /* This is a custom class name */
+  color: red;
+}
