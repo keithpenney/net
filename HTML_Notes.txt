@@ -526,7 +526,17 @@ Forms and Input Fields:
         "action" attribute defines the page which will receive the form data.
         To prepare our data for sending, we need to give every input field a unique name, using the "name" attribute.
         On the receiving end, the server will see each piece of data arrive with its associated "name"
+        All data sent over HTTP is sent as text, except for sending files as binary data (see below).
 
+        Sending Binary Data (files):
+            By default, the Content-Type attribute of HTTP POST and GET methods is "application/x-www-form-urlencoded"
+            To send binary data, you must use the POST method and set the "enctype" attribute to "multipart/form-data"
+            for the form element.  To select a file, implement a file chooser (see above).
+            Before sending, make sure to check the maximum file size on the server side.
+
+        Server-Side Concerns:
+            Make sure to scrub your shit for cross-site scripting/request forgeries, SQL injection, HTTP header
+            injection, etc.  Just don't be an asshole.
 
 Debugging:
     Debugging HTML can be tricky because browsers parse HTML permissively, meaning it will render the document
@@ -559,6 +569,7 @@ HTTP Methods:
     Each HTTP request consists of a header and a body.
     Header: global metadata about the browser
     Body:   information specific to the request
+    The server receives data as a string and must parse it.
     HTTP requests can be viewed using the developer tools (e.g. Tools->Web Developer->Network on Firefox)
 
     GET:
@@ -581,6 +592,19 @@ HTTP Methods:
             Content-Length: 20                                  <!-- |    | -->
 
             myname=Keef&myage=29                                <!--  Body  -->
+
+HTTP Server Frameworks:
+    PHP:
+        Server-side scripting language for parsing data from HTTP requests.  Originally called "Personal Homepage Parser"
+        PHP includes several objects built for parsing and accessing data sent via the POST and GET HTTP methods.
+        Cannot be directly interpreted in a browser; must run on a PHP server (local or remote).
+
+    Python: Flask, Django
+        Django is a BSD-licensed web framework written in Python.
+        Flask is a pared-down BSD-licensed web framework also written in Python; still on pre-release versions.
+
+    Ruby on Rails:
+        Popular web framework written for Ruby.  Used all over the place.
 
 CSS:
     <link rel="stylesheet" href="my-css-file.css">      Link a css stylesheet to your HTML document.
