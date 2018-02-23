@@ -43,12 +43,18 @@
       select {
         width: 300px;
       }
+      input:invalid {
+        border: 2px solid red;
+      }
+      input:valid {
+        border: 1px solid black;
+      }
     </style>
   </head>
   <body>
 
     <h1>Example: Forms</h1>
-    <form method="/my-form-handler" method="post">
+    <form method="/my-form-handler" method="get">
       <div>
         <label for="name">Name:</label>
         <input type="text" id="name" name="user_name">
@@ -56,6 +62,10 @@
       <div>
         <label for="mail">Email:</label>
         <input type="email" id="mail" name="user_mail" placeholder="example@clownpenis.fart">
+      </div>
+      <div>
+        <label for="phone">Phone:</label>
+        <input id="phone" name="user_phone" required pattern="\({0,1}[0-9]{3}\){0,1}[ -\.]{0,1}[0-9]{3}[ -\.]{0,1}[0-9]{4}">
       </div>
       <div>
         <label for="mood">How you feel?</label>

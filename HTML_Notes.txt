@@ -412,9 +412,13 @@ Forms and Input Fields:
             value=""            Define a default value (returns to this on reset).
             placeholder=""      Like "value" but it disappears when user enters content.
             readonly            Boolean.  User cannot modify the value.
+            required            Boolean.  Client-side form validation.  Form won't submit without valid data here.
             length=""           Maximum number of characters which can be entered.
             size=""             The width of the widget.
             checked             Boolean.  Used with radio button or checkbox.  Define default state.
+            pattern=""          Provide a pattern (regex) for input validation.
+            minlength=""        Provide a minimum length for valid data.  Also works for <textarea>
+            maxlength=""        Provide a maximum length for valid data.  Also works for <textarea>
         <textarea></textarea>   A multi-line text input widget.
             cols=""             Number of columns.  Default is 20
             rows=""             Number of visible rows.
@@ -492,6 +496,30 @@ Forms and Input Fields:
                 min/max         Defines the min/max values of the meter.
                 low/high        Defines the threshold for a "high" value and a "low" value (renders differently).
                 optimum=""      Defines an optimum value.
+
+    Form Validation:
+        HTML5 Built-in Form Validation:
+            HTML5 provides several attributes and methods for automatic client-side form validation.
+            Combining these features with the CSS pseudo-classes ":valid" and ":invalid" allows for simple visual
+            feedback to the user before the form is submitted.
+            <!-- CSS Example -->
+              input:invalid {
+                border: 2px dashed red;
+              }
+              input:valid {
+                border: 2px solid black;
+              }
+
+            Using the "pattern" attribute with regular expressions (regex):
+            <!-- Example --> \({0,1}[0-9]{3}\){0,1}[ -\.]{0,1}[0-9]{3}[ -\.]{0,1}[0-9]{4}
+            <!-- Matches a US phone number in all my favorite formats.  Note lots of escaped characters -->
+
+            Both <input> and <textarea> elements can use the attributes "minlength" and "maxlength" to restrict the
+            length of data considered valid.
+
+        JavaScript Form Validation:
+            To customize form behavior or look/feel, you'll probably need to use JavaScript as the validation method
+            customization in HTML is limited.
 
     Sending Form Data:
         All data entered into an HTML form must be sent to a separate page (server) to process.  The <form> element's
