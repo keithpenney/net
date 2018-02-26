@@ -41,8 +41,8 @@ CSS Syntax:
         These are used to convey metadata or to conditionally apply nested rules.
         E.g. to apply a rule to all devices with screen width above 800px, we can nest the rule inside an @-rule:
             /* @-rule example */
-            @charset "utf-8"                /* Declare the charset to be utf-8.  Must be first line of the file */
-            @import local("myfont.ttf")     /* Import a locally-stored font */
+            @charset "utf-8" ;              /* Declare the charset to be utf-8.  Must be first line of the file */
+            @import local("myfont.ttf");    /* Import a locally-stored font */
             @media (min-width: 801px) {     /* This @-rule only applies to media devices with screen width > 800px */
               body {
                 margin: 0 auto;
@@ -93,6 +93,59 @@ Selectors:
         <div class="fancy">This text is the 'fancy' class</div>
         <p class="red">This text is the 'red' class</p> 
         <div class="red fancy">This text implements both the 'fancy' class AND the 'red' class</div>
+
+    Attribute Selectors:
+        You can also define a selector which applies to elements with a particular attribute defined or assigned a
+        particular value.
+
+    Attribute Selector Exammple:
+        /* -- CSS -- */
+        [data-species] {                /* Match any element with 'data-species' defined */
+          font-weight: bold;
+        }
+        [data-species="hat-en"] {       /* Match any element with 'data-species' assigned to exactly "hat-en" */
+          text-shadow: 1px 1px 1px red;
+        }
+        [data-species*="gendered"] {    /* Match any element whose 'data-species' attribute contains "gendered" */
+          background-color: pink;       /* Alternatively: [data-species~="gendered"] treats the attribute value */
+        }                               /* as a space-separated list of values */
+        [data-species^="animal"] {      /* Match any element whose 'data-species' attribute begins with "animal" */
+          font-size: 1.2em
+        }
+        [data-species$="en"] {          /* Match any element whose 'data-species' attribute ends with "en" */
+          font-style: normal;
+        }
+        [data-species$="fr"] {          /* Match any element whose 'data-species' attribute ends with "fr" */
+          font-style: italic;
+        }
+        <!-- HTML -->
+        <ul>
+          <li data-species="animal-dog-en">Dog</li>
+          <li data-species="animal-dog-fr gendered">Chien(ne)</li>
+          <li data-species="animal-fox-en">Fox</li>
+          <li data-species="animal-fox-fr">Renaud</li>
+          <li data-species="hat-en">Hat</li>
+          <li data-species="hat-fr">Chapeau</li>
+        </ul>
+
+    Pseudo-Classes:
+        When you want to stylize elements based on their state, you can use pseudo-classes which are keywords preceded
+        by a semicolon ":".
+        :active             Elements which are currently active (e.g. after mouse click, before mouse release)
+        :any()              Define a list of OR'd options.
+        :checked            Elements which are checked (e.g. checkbox, radio button)
+        :disabled           Any currently disabled element.
+        :enabled            Any currently enabled element.
+        :focus              Any element that currently has the focus.
+        :hover              An element being hovered over.
+        :in-range           An input element whose value is currently in range.
+        :invalid            A form or input element whose value is not valid.
+        :not()              An element that does not match a list of selectors.
+        :optional           A form element that doesn't have the "required" attribute
+        :out-of-range       An input element whose value is currently out of range.
+        :required           A form element that has the "required" attribute
+        :valid              A form or input element whose value is valid.
+        :visited            A link that the user has already visited.
 
 
 Common Properties and Values:

@@ -1,0 +1,18 @@
+@charset "utf-8"
+
+/* -- CSS -- */
+[data-species] {
+  font-weight: bold;
+}
+[data-species~="gendered"] {
+  background-color: pink;
+}
+[data-species^="animal"] {
+  font-size: 1.2em
+}
+[data-species$="en"] {
+  font-style: normal;
+}
+[data-species$="fr"] {
+  font-style: italic;
+}

@@ -1,0 +1,32 @@
+@charset "utf-8";
+
+/* -- CSS -- */
+[data-species] {
+  font-weight: bold;
+}
+[data-species="hat-en"] {
+  text-shadow: 1px 1px 1px red;
+}
+[data-species~="gendered"] {
+  background-color: pink;
+}
+[data-species^="animal"] {
+  font-size: 1.2em
+}
+[data-species$="en"] {
+  font-style: normal;
+  color: #66CC00;
+}
+[data-species$="fr"] {
+  font-style: italic;
+}
+
+a:hover, a:focus {
+  color: red;
+  text-decoration: none;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
