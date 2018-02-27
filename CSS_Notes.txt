@@ -5,7 +5,7 @@ General:
     CSS is a language for specifying how a document is presented visually.  The document can be HTML, XML, SVG, etc.
     Browsers apply CSS "rules" to the document; converts both into a Document Object Model (DOM)
     /* Comments go inside C-like multiline comment characters. */
-    If two conflicting styles are applied to the same element, the one defined LAST in the CSS code wins.
+    When multiple conflicting rules apply to an element, the rules that are used are determined by "the cascade."
 
 CSS with HTML:
     An HTML document can either link to an external CSS file or contain the CSS code directly in the HTML head.
@@ -35,6 +35,13 @@ CSS Syntax:
       property: value;          /* Note the mandatory colon ":" and semicolon ";" */
       ...                       /* More declarations can go here */
     }                           /* This whole structure is called a "declaration block" */
+
+    Syntax Look-Up Table:
+        @foo                    @-rule (at-rule)
+        .foo                    Class selector
+        #foo                    ID selector
+        :foo                    Pseudo-class
+        ::foo                   Pseudo-element
 
     At-Rules (@-rules):
         A CSS rule with a selector beginning with the @ sign are called "at-rules" (or "@-rules").
@@ -76,57 +83,57 @@ Selectors:
         A class can apply to many objects, and id can only apply to one!  UB occurs if the same id is repeated.
         ID names are treated as selectors in CSS when preceded by a pound sign "#"
 
-    Class/ID Example:
-        /* -- CSS -- */
-        .fancy {                    /* A class name */
-          font-family: cursive;
-        }
-        .red {                      /* Another class name */
-          color: red;
-        }
-        #keef {                     /* An ID name.  Applies to only ONE element */
-            background-color: #DDDDDD;
-            text-shadow: 1px 1px 1px black;
-        }
-        <!-- HTML -->
-        <h1 id="keef">This is a unique object.  We'll give it an ID name.</h1>
-        <div class="fancy">This text is the 'fancy' class</div>
-        <p class="red">This text is the 'red' class</p> 
-        <div class="red fancy">This text implements both the 'fancy' class AND the 'red' class</div>
+        Class/ID Example:
+            /* -- CSS -- */
+            .fancy {                    /* A class name */
+              font-family: cursive;
+            }
+            .red {                      /* Another class name */
+              color: red;
+            }
+            #keef {                     /* An ID name.  Applies to only ONE element */
+                background-color: #DDDDDD;
+                text-shadow: 1px 1px 1px black;
+            }
+            <!-- HTML -->
+            <h1 id="keef">This is a unique object.  We'll give it an ID name.</h1>
+            <div class="fancy">This text is the 'fancy' class</div>
+            <p class="red">This text is the 'red' class</p> 
+            <div class="red fancy">This text implements both the 'fancy' class AND the 'red' class</div>
 
     Attribute Selectors:
         You can also define a selector which applies to elements with a particular attribute defined or assigned a
         particular value.
 
-    Attribute Selector Exammple:
-        /* -- CSS -- */
-        [data-species] {                /* Match any element with 'data-species' defined */
-          font-weight: bold;
-        }
-        [data-species="hat-en"] {       /* Match any element with 'data-species' assigned to exactly "hat-en" */
-          text-shadow: 1px 1px 1px red;
-        }
-        [data-species*="gendered"] {    /* Match any element whose 'data-species' attribute contains "gendered" */
-          background-color: pink;       /* Alternatively: [data-species~="gendered"] treats the attribute value */
-        }                               /* as a space-separated list of values */
-        [data-species^="animal"] {      /* Match any element whose 'data-species' attribute begins with "animal" */
-          font-size: 1.2em
-        }
-        [data-species$="en"] {          /* Match any element whose 'data-species' attribute ends with "en" */
-          font-style: normal;
-        }
-        [data-species$="fr"] {          /* Match any element whose 'data-species' attribute ends with "fr" */
-          font-style: italic;
-        }
-        <!-- HTML -->
-        <ul>
-          <li data-species="animal-dog-en">Dog</li>
-          <li data-species="animal-dog-fr gendered">Chien(ne)</li>
-          <li data-species="animal-fox-en">Fox</li>
-          <li data-species="animal-fox-fr">Renaud</li>
-          <li data-species="hat-en">Hat</li>
-          <li data-species="hat-fr">Chapeau</li>
-        </ul>
+        Attribute Selector Exammple:
+            /* -- CSS -- */
+            [data-species] {                /* Match any element with 'data-species' defined */
+              font-weight: bold;
+            }
+            [data-species="hat-en"] {       /* Match any element with 'data-species' assigned to exactly "hat-en" */
+              text-shadow: 1px 1px 1px red;
+            }
+            [data-species*="gendered"] {    /* Match any element whose 'data-species' attribute contains "gendered" */
+              background-color: pink;       /* Alternatively: [data-species~="gendered"] treats the attribute value */
+            }                               /* as a space-separated list of values */
+            [data-species^="animal"] {      /* Match any element whose 'data-species' attribute begins with "animal" */
+              font-size: 1.2em
+            }
+            [data-species$="en"] {          /* Match any element whose 'data-species' attribute ends with "en" */
+              font-style: normal;
+            }
+            [data-species$="fr"] {          /* Match any element whose 'data-species' attribute ends with "fr" */
+              font-style: italic;
+            }
+            <!-- HTML -->
+            <ul>
+              <li data-species="animal-dog-en">Dog</li>
+              <li data-species="animal-dog-fr gendered">Chien(ne)</li>
+              <li data-species="animal-fox-en">Fox</li>
+              <li data-species="animal-fox-fr">Renaud</li>
+              <li data-species="hat-en">Hat</li>
+              <li data-species="hat-fr">Chapeau</li>
+            </ul>
 
     Pseudo-Classes:
         When you want to stylize elements based on their state, you can use pseudo-classes which are keywords preceded
@@ -147,6 +154,57 @@ Selectors:
         :valid              A form or input element whose value is valid.
         :visited            A link that the user has already visited.
 
+    Pseudo-Elements:
+        Pseudo-elements are like pseudo-classes but are keywords preceded by two semicolons "::"
+        These can be used to apply custom formatting to specific sub-parts of target elements.
+        It is also common to use pseudo-elements and the "content" property to insert CSS-generated content (text/img).
+        ::after             Used to insert content immediately after (in-line) the target element
+        ::before            Used to insert content immediately before (in-line) the target element
+        ::first-letter      Apply formatting to the first letter of an element
+        ::first-line        Apply formatting to the first line of an element (line-break depends on screen size)
+        ::selection         Apply formatting to a section of text that has been highlighted by the user
+
+    Selector Combinations (Combinators):
+        We can apply the same formatting rules to several elements at once or to elements with a particular
+        relationship to other elements.  Since a document of moderate complexity can easily have hundreds of elements,
+        we need a way to be hyper-specific about the elements we are referring to.  Therefore, we have several
+        operators to define combinations and relationships between elements.
+
+        Given A and B are any valid selectors:
+        A, B        Any element matching A OR B (boolean OR)
+        A B         Any element matching B which is a descendent of an element matching A (e.g. child, grandchild, etc.)
+        A > B       Any element matching B which is a direct child of an element matching A (not grandchild)
+        A + B       Any element matching B that is the very next sibling (child of same parent) of an element matching A
+        A ~ B       Any element matching B that is one of the next siblings of an element matching A
+
+Properties:
+    Values:
+        inherit             Set the value to the corresponding value of its parent element.
+        initial             Set the value to that of the default style sheet for the browser.  If no default -> inherit
+        unset               Reset the property to its 'natural' value; if naturally inherited -> inherit; else -> initial
+    Units:
+        Absolute Units:
+            px, mm, cm, in, pt, pc      Pixels, millimeters, centimeters, inches, points (1/72"), picas (12pt)
+            s, deg                      Seconds, degrees (angle)
+        Relative Units:
+            %       Percentage relative to the corresponding value of the element's parent
+            em      1em is the same as the inherited font size of the current element (width of capital M)
+            rem     The 'rem' is the same as 'em' except inheritance doesn't affect its size.
+            vw,vh   The 'vw' and 'vh' units are 1/100th the width and height of the viewport, respectively.
+        Unitless Numbers:
+            Sometimes numbers can be used without units; often is interpreted as "proportion of default number"
+
+    Functions:
+        CSS has basic built-in functions.  Any keyword followed by parentheses () is a function.
+        Example: url(), rotate(), translate(), calc(), rgba(), hsla()
+
+Layout:
+    The Box Model:
+        CSS models each element as a rectangular box with various layers.
+        margin: the outermost layer, outside the border
+        border: inside the margin, outside the padding
+        padding: inside the border, outside the content
+        content: inside the padding.  Has properties "width" and "height"
 
 Common Properties and Values:
     Syntax: Possible literal values are contained within braces {} and separated by bars |
@@ -158,10 +216,12 @@ Common Properties and Values:
 
     Shorthand Properties:
         Some properties allow specification of several properties at once, which can save a lot of space.
-        padding:            <padding-top> || <padding-right> || <padding-bottom> || <padding-left>
         background:         <background-color> || <background-image> || <background-position> || <background-repeat> || <background-scroll>
         text-decoration     <text-decoration-line> || <test-decoration-style> || <text-decoration-color>
         text-shadow
+        border              <border-top> || <border-right> || <border-bottom> || <border-left>
+        padding             <padding-top> || <padding-right> || <padding-bottom> || <padding-left>
+        margin              <margin-top> || <margin-right> || <margin-bottom> || <margin-left>
 
     Text Elements:
         color               {<color> | #[HHHHHH] | rgb([b], [b], [b]) | hsl([N], [N]%, [N]%) | currentcolor}
@@ -170,11 +230,21 @@ Common Properties and Values:
                             /* Note: when specifying a percentage, it is relative to the parent's font size. */
         font-style          {normal | italic | oblique}
         font-weight         {normal (400) | bold (700) | lighter | bolder | [1-9]00} /* "...er" relative to parent weight*/
+        text-align          {center | left | right}
 
-        
         text-decoration-line    {none | underline | overline | line-through} /* Can be combination of any of these */
         text-decoration-style   {solid | double | dotted | dashed | wavy} /* Applies to the 'line' portion */
         text-decoration-color   {<color> | #[HHHHHH] | rgb([b], [b], [b]) | hsl([N], [N]%, [N]%) | currentcolor}
+
+    Size/Layout:
+        opacity             {[0-1], [0-100]%}
+        height
+        width
+        margin
+        padding
+        border-width
+        border-style
+        border-color
 
 Fonts:
     Due to the complexity and shear number of fonts available, let's give them their own section.
@@ -198,7 +268,35 @@ Fonts:
         }
 
     The <color> Datatype:
-        Anything that accepts a <color> datatype can accept a ridiculous number of names for colors.
-        Examples: red, green, purple, teal, azure, blanchedalmond, mediumorchid
-        A full list: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
+        Keywords:
+            Anything that accepts a <color> datatype can accept a ridiculous number of keywords for colors.
+            Examples: red, green, purple, teal, azure, blanchedalmond, mediumorchid
+            A full list: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
+        Hex Codes:
+            Standard hex-codes for 24-bit RGB "#RRGGBB" where 'RR', 'GG', and 'BB' are hex bytes for red, green, blue
+        RGB:
+            The rgb(R, G, B) function takes decimal numbers as "R", "G", and "B" instead of hex like hex-codes
+            The rgba(R, G, B, A) function adds an alpha channel (0-1) for transparency
+        HSL:
+            "Hue Saturation Lightness" -> hsl(H, S, L)
+            Hue (H): 0-360; angles around the color wheel
+            Saturation (S): 0-100% (0 being greyscale)
+            Lightness (L): 0-100% (0 being black, 100% being white)
+            The hsla(H, S, L, A) function adds an alpha channel (0-1) for transparency
 
+The Cascade:
+    These are the rules by which conflicts between declarations are resolved.
+    Here is the heirarchy listed from highest to lowest priority (descending).
+
+    1. Importance:
+        If any property value has the "!important" tag, it will always win.
+        The use of "!important" is highly discouraged.
+    2. Specificity: 
+        Listed are selector types in decreasing specificity order.
+        Specificity is calculated by summing all these categories as if they were decimal places ('a' is MS, 'd' is LS)
+        a. Anything inside an element's "style" attribute (in the HTML code)
+        b. ID selectors
+        c. Class selectors, attribute selectors, pseudo-classes
+        d. Element selectors, pseudo-elements
+    3. Source Order:
+        Rules listed later (higher line number) in the CSS code win.
