@@ -218,7 +218,7 @@ Common Properties and Values:
         Some properties allow specification of several properties at once, which can save a lot of space.
         background:         <background-color> || <background-image> || <background-position> || <background-repeat> || <background-scroll>
         text-decoration     <text-decoration-line> || <test-decoration-style> || <text-decoration-color>
-        text-shadow
+        text-shadow         <horizontal offset> <vertical offset> <blur radius> <base color>
         border              <border-top> || <border-right> || <border-bottom> || <border-left>
         padding             <padding-top> || <padding-right> || <padding-bottom> || <padding-left>
         margin              <margin-top> || <margin-right> || <margin-bottom> || <margin-left>
@@ -230,7 +230,8 @@ Common Properties and Values:
                             /* Note: when specifying a percentage, it is relative to the parent's font size. */
         font-style          {normal | italic | oblique}
         font-weight         {normal (400) | bold (700) | lighter | bolder | [1-9]00} /* "...er" relative to parent weight*/
-        text-align          {center | left | right}
+        text-align          {center | left | right | justify}
+        text-transform      {none | uppercase | lowercase | capitalize | full-width}
 
         text-decoration-line    {none | underline | overline | line-through} /* Can be combination of any of these */
         text-decoration-style   {solid | double | dotted | dashed | wavy} /* Applies to the 'line' portion */
@@ -240,11 +241,13 @@ Common Properties and Values:
         opacity             {[0-1], [0-100]%}
         height
         width
+        display             {inline | block | inline-block}
         margin
         padding
         border-width
         border-style
         border-color
+        overflow            {auto | hidden | visible} /* Determines how content overflow is handled (clipped, scroll) */
 
 Fonts:
     Due to the complexity and shear number of fonts available, let's give them their own section.
@@ -266,6 +269,10 @@ Fonts:
         .fantasy {
             font-family: fantasy;
         }
+
+    Web-Safe Fonts:
+        A non-exhaustive list of fonts generally supported on all systems/browsers.
+        Arial, Courier New, Georgia, Times New Roman, Trebuchet MS, Verdana
 
     The <color> Datatype:
         Keywords:
