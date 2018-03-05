@@ -594,6 +594,11 @@ HTTP Methods:
             myname=Keef&myage=29                                <!--  Body  -->
 
 HTTP Server Frameworks:
+    JavaScript: Node.js
+        JavaScript server-side scripting framework which not only enables a unified language between Client-side
+        and server-side programming, but also allows dynamic web pages to be created by the server before being
+        sent to the client's browser.
+
     PHP:
         Server-side scripting language for parsing data from HTTP requests.  Originally called "Personal Homepage Parser"
         PHP includes several objects built for parsing and accessing data sent via the POST and GET HTTP methods.

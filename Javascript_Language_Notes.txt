@@ -1,0 +1,132 @@
+Javascript Language Notes
+
+General:
+    Interpreted language.
+    Case-sensitive.
+    Lines should end with semi-colons; if they don't, Automatic Semi-Colon Insertion (ASI) occurs.
+    Built for web as a complement to HTML and CSS.
+    Comments are C-style // single line or /* multi-line */
+    JavaScript is loaded on a page in the brower's JavaScript engine after the HTML and CSS.
+    Each browser tab is its own "execution environment" (no tab-to-tab scripting)
+
+Applying JavaScript to HTML:
+    In-line HTML:
+        <script>
+          // JavaScript code goes here 
+        </script>
+    External JavaScript:
+        <script src="myscript.js"></script>
+
+    HTML can also take JavaScript as e.g. attribute values, but this is BAD practice.
+        <button onclick="myButtonHandler()">A dynamic button</button>
+
+Web Console:
+    Since JavaScript is an interpreted language, we can interact with a session 'live' (like Python's console).
+    To do this, we can open any script/html document in a browser and use the "Web Console" or "JavaScript Console"
+    listed under the developer tools.
+
+    console.log()       Output to the console
+
+Reserved Keywords:
+    false               Boolean false value.
+    function            Declare a function.
+    return              Return a value (or nothing) from a function.
+    true                Boolean true value.
+    typeof              Returns the type of a variable.  NOT a function! // typeof myVar;
+    var                 Declare a variable.
+
+Operators:
+    Arithmetic
+    +, -, *, /, %       Addition, subtraction, multiplication, float division, modulo (remainder)
+    +=, -=, *=, /=      Add-assign, subtract-assign, multiply-assign, divide-assign
+    ++, --              Increment, decrement.  Can be pre-fix or post-fix w/ the typical results.
+
+    Comparison
+    ===                 Strict equality (e.g. a === b; is a exactly equal to b?)
+    !==                 Inequality.
+    >, <, >=, <=        Less than, greater than, less than or equal, greater than or equal
+
+Variables:
+    Variables are weakly typed (duck typing).  The type of a variable is inherited from its value.
+    Variable names can include underscore "_", letters, dollar sign "$", or digit (cannot start with digit).
+    Variables are declared with the "var" keyword.
+    // ---- Syntax Example ---- //
+        var myVariable = someValue;
+    // ---- End Example ---- //
+
+    Methods and Properties:
+        The type of the variable determines the available properties and methods.
+
+        Universal Properties:
+            style
+
+        Universal Methods:
+            toString()
+
+    Strings:
+        Single quotes '' or double quotes "" are both acceptable (as long as they match).
+        Accepts escape sequences.
+        Strings can be concatenated with the '+' operator.
+
+        Convert a string to a number with Number()
+
+    Arrays:
+        // ---- Syntax Example ---- //
+        var myArray = [4, 220, 32.1, -7];
+        var myOtherArray = ["Keef", 'hablas', 'meijor'];
+
+    Objects:
+        JavaScript "objects" are like a cross between Python objects and dicts.
+        // ---- Syntax Example ---- //
+        var dog = {breed : "mutt", name : "Roy Blount"};
+        console.log(dog.name);  // Fetch an object property like pointer dereference
+
+Functions:
+    // ---- Syntax Example ---- //
+    function foo() {
+      // do stuff
+    }
+    // ----  End Example  ---- //
+
+Flow Control:
+    If Statement:
+        // ---- Syntax Example ---- //
+        if ( CONDITION ) {
+            // Do stuff if CONDITION === true
+        } else if ( CONDITION2 ) {
+            // Do stuff if CONDITION2 === true
+        } else {
+            // Do stuff if neither condition is true
+        }
+
+    For Loop:
+        // ---- Syntax Example ---- //
+        for (var i = 0; i < 10; i++) {
+            // do this until i >= 10
+        }
+
+Events:
+    There are several ways to make a function respond to an event.
+    // ---- Example ---- //
+    button.onClick = someFunction();
+    button.addEventListener('click', someFunction);
+
+User Interface:
+    // ---- Examples ---- //
+    window.alert(msg);                  // a pop-up windows with a message 'msg' and an 'ok' button
+    var response = window.prompt(msg);  // a window with an input field showing 'msg' and asking for user input
+    
+Browser APIs:
+    Document Object Model (DOM) API:    Enables dynamic manipulation of HTML elements.
+        document.querySelector('sel')   Returns a reference to the first object matching CSS selector 'sel'
+        document.querySelectorAll('sel') Returns a list of references for all objects matching CSS selector 'sel'
+
+    Geolocation API:                    Enables discovery of user location and GPS.
+    Canvas API:                         2D graphics and animation
+    WebGL API:                          3D graphics and animation
+    HTMLMediaElement API:               Enables playing audio/video and interfacing with cameras/mics.
+
+    Third-Party APIs:
+        Google Maps API:                    Embed Google Maps in your page; map routes, etc.
+        Instagram, Twitter, etc.            All this bullshit.
+
