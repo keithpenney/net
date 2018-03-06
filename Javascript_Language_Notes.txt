@@ -62,18 +62,53 @@ Variables:
 
         Universal Methods:
             toString()
+            valueOf()
 
     Strings:
         Single quotes '' or double quotes "" are both acceptable (as long as they match).
-        Accepts escape sequences.
-        Strings can be concatenated with the '+' operator.
+        Accepts escape sequences.  E.g.: \n, \t, \uXXXX (unicode codepoint)
+        Strings can be concatenated with the '+' operator.  When using the '+' operator between a string and a number,
+        it is implied that the number will be converted to a string (using the 'tostring()' method).  This is bad form.
+        Just be explicit about converting objects to the exact type you intend.
+        Strings are compared using the boolean > and < operators.  Same results as C's strcmp()
+        String literals and primitives have access to the same methods/properties as instances of the "String" class,
+        but there are differences in how the string literal is interpreted at construction.
 
         Convert a string to a number with Number()
 
+        String Object Methods:
+            s.charAt(n)             // Return the character at index n.  str.charAt(n) -> str[n];
+            s.indexOf(b)            // Return the starting index of substring 'b' contained within string 's'.
+                                    // Returns -1 if 'b' is NOT contained within 's'.
+            s.replace(from, to)     // Returns a copy of 's' with substring 'from' replaced with string 'to'
+            s.slice(nb, ne)         // Returns the slice of 's' from index 'nb' to index 'ne'.
+                                    // If 'ne' not provided, assumes ne = s.length - 1
+            s.search(regexp)        // Returns the first index of a substring matching regexp in 's' (or -1 otherwise).
+            s.split(sep [,lim])     // Returns an array of substrings of 's' split by string 'sep' (up to 'lim' if given)
+            s.toUpperCase()         // Returns 's' with all characters in UPPERCASE
+            s.toLowerCase()         // Returns 's' with all characters in lowercase
+            s.trim()                // Returns 's' with whitespace trimmed from both left and right sides.
+            s.valueOf()             // Returns the string primitive value of 's'
+
+        String Object Properties:
+            s.length                // The number of characters in the string (not counting nul terminator)
+
     Arrays:
+        Arrays can be of mixed type (like a C-style void *[])
         // ---- Syntax Example ---- //
         var myArray = [4, 220, 32.1, -7];
         var myOtherArray = ["Keef", 'hablas', 'meijor'];
+        var anotherArray = ["Words", 42, ["sub", 3.14159, "array"], 0];     // An array of mixed types (and nested)
+
+        Array Object Methods:
+            a.join(ch)              // Returns a string of all elements of 'a' concatenated with adjoining string 'ch'
+            a.push(x)               // Appends item 'x' to the end of array 'a'.  Returns resulting index of 'x' in 'a'
+            a.pop()                 // Removes and returns the last item in array 'a'.
+            a.shift()               // Removes and returns the first item in array 'a'. (backwards pop())
+            a.unshift(x)            // Adds item 'x' to the beginning of array 'a', returns new array length
+
+        Array Object Properties:
+            a.length                // Returns the length of array 'a'
 
     Objects:
         JavaScript "objects" are like a cross between Python objects and dicts.
