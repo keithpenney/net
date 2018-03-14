@@ -46,6 +46,12 @@ Operators:
     !==                 Inequality.
     >, <, >=, <=        Less than, greater than, less than or equal, greater than or equal
 
+    Boolean
+    &&, ||              Boolean AND and OR respectively.
+
+    Ternary             Just like other C-type languages, JavaScript supports the ternary operator
+    (TEST) ? T : F      Evaluates 'TEST'; returns T if TEST === true, F if TEST === false
+
 Variables:
     Variables are weakly typed (duck typing).  The type of a variable is inherited from its value.
     Variable names can include underscore "_", letters, dollar sign "$", or digit (cannot start with digit).
@@ -124,6 +130,12 @@ Functions:
     // ----  End Example  ---- //
 
 Flow Control:
+    Conditionals:
+        The reserved keywords for boolean true and false are "true" and "false" (lowercase).
+        The following values are evaluated as false:
+            false, undefined, null, 0, NaN, '' (empty string)
+        Any value that is not listed above will evaluate as true.
+
     If Statement:
         // ---- Syntax Example ---- //
         if ( CONDITION ) {
@@ -133,12 +145,28 @@ Flow Control:
         } else {
             // Do stuff if neither condition is true
         }
+        Recall that the ternary operator (see 'Operators' above) can replace simple If statements and save space.
 
     For Loop:
         // ---- Syntax Example ---- //
         for (var i = 0; i < 10; i++) {
             // do this until i >= 10
         }
+
+    Switch Statements:
+        // ---- Syntax Example ---- //
+        switch (EXPRESSION) {
+          case VAL1:
+            // run if EXPRESSION === VAL1
+            break;
+          case VAL2:
+            // run if EXPRESSION === VAL2
+            break;
+          default:
+            // run if EXPRESSION === some other value besides VAL1 or VAL2
+            // default case doesn't need 'break'
+        }
+
 
 Events:
     There are several ways to make a function respond to an event.
