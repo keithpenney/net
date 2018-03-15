@@ -33,6 +33,7 @@ Reserved Keywords:
     return              Return a value (or nothing) from a function.
     true                Boolean true value.
     typeof              Returns the type of a variable.  NOT a function! // typeof myVar;
+    undefined           This is the value for a var that has been declared but not initialized/assigned.
     var                 Declare a variable.
 
 Operators:
@@ -123,11 +124,56 @@ Variables:
         console.log(dog.name);  // Fetch an object property like pointer dereference
 
 Functions:
+    Functions work pretty much as expected for a weakly typed language.
+    One notable difference with Python is the lack of a notion of "args vs. kwargs".  In JavaScript, any parameter can
+    have a default value and can be defined in any order.
+
+    When a function is called arguments are assigned to parameters left-to-right.  If a parameter did not receive a
+    value, it takes on its default value if it has one.  If it does not have a value, it takes on the value 'undefined'
+
     // ---- Syntax Example ---- //
-    function foo() {
-      // do stuff
+    function foo(arg1, arg2 = 99, arg3) {
+      // Note that arg1 and arg3 have no default value but arg2 does.
+      var bar = arg1 + arg1;    // Do stuff with arguments arg1 and arg2 (non-typed, of course)
+      return bar;               // Return a value
     }
     // ----  End Example  ---- //
+
+    Anonymous Functions:
+        In JavaScript, anonymous functions are primarily used for event handlers.
+
+        // ---- Example ---- //
+        function() {
+          console.log("I have no name!");
+        }
+
+        myButton.onclick = function() {
+          alert("Thanks for clicking the button.");
+        }
+        // ----  End Example  ---- //
+
+    Generator Function:
+        // ---- Syntax Example ---- //
+        function* myFunc(arg1, arg2, arg3) {
+            // stuff
+        }
+        // ----  End Example  ---- //
+
+    Arrow Functions:
+        Arrow functions (named for their syntax) were created to solve a problem with object methods being able to
+        properly refer to their parent object via the Java-style 'this' keyword.
+        Normal functions automatically define their 'this' keyword when executed in a global context.
+        Arrow functions don't do this, so their 'this' keyword refers to the enclosing execution context.
+        // ---- Syntax Example ---- //
+        (arg1, arg2, arg3) => {
+          // statements
+          return;                   // Optionally return a value
+        }
+
+        var myArrowFunc = () => { console.log("This is an arrow function!"); }
+
+    Built-In Functions:
+        isNaN(n)                    // Returns true if 'n' === NaN (not a number)
 
 Flow Control:
     Conditionals:
@@ -167,6 +213,19 @@ Flow Control:
             // default case doesn't need 'break'
         }
 
+    While Loop:
+        Just like in C, the "while loop" checks the condition before running the code, the "do-while loop" checks the
+        condition after running the code (for the first time).
+        // ---- Syntax Example ---- //
+        while (CONDITION) {
+          // do stuff.  Make sure to iterate some value to prevent an infinite loop.
+        }
+
+    Do-While Loop:
+        // ---- Syntax Example ---- //
+        do {
+          // do stuff.  Again, make sure to iterate some value to prevent an infinite loop.
+        } while (CONDITION);    // Note the semi-colon
 
 Events:
     There are several ways to make a function respond to an event.
