@@ -1,0 +1,94 @@
+Networking Notes
+
+Inter-Process Communication (IPC):
+    Stream:
+        A communication style which acts as a FIFO buffer.  Messages can be written to a stream and will accumulate
+        (up to some maximum size) until read from the other end of the stream.  A read command takes an argument of
+        the maximum number of bytes to read.  If there is less data available in the stream, only what is available
+        is returned.  Otherwise, it returns the number of bytes requested (with all written data concatenated).
+        Data transfer is reliable and error-free.
+
+    Datagram:
+        A communication style where data packets are individually addressed and are sent without an established
+        connection.  Generally requests a response from the recipient to acknowledge receipt.
+        Data transfer is not guaranteed.
+        If no acknowledgement response arrives within the timeout, the request is repeated.
+        Message boundaries are preserved.
+
+    Pipe:
+        A one-directional communication connection between two processes.
+        A pipe has two ends, called sockets.  Each has a file descriptor associated with it.
+        Operates in a stream-like manner (FIFO buffer).
+        Processes communicating over pipes require a common ancestor.
+
+    Socket:
+        A file descriptor representing one end of a pipe.
+
+    Socket Pairs (socketpairs):
+        A socket pair (or socketpair) is a two-way communication device similar to a pipe.
+        Processes communicating over sockepairs require a common ancestor.
+
+    Domain:
+        A collection of unique addresses.  Communication can be restricted to a particular domain.
+        Examples:
+            UNIX:
+                Within the UNIX domain, a socket is given a path name within the file system name space.
+                A file system node is created for the socket at that path name and any two processes operating in the
+                same file system can use the socket to communicate.
+
+            INET (Internet):
+                Within the Internet domain, communication follows the TCP/IP (IPv4) protocols.
+                Addresses in the Internet domain consist of an IP address and a port number.
+
+    Before two processes can communicate via a pipe, they need to have a common ancestor (or parent fork a child).
+    When a process is forked from another, it receives a copy of the parent's file descriptor table with which it
+    can communicate with the outside world (recall the first 3 elements of the file descriptor table are stdin,
+    stdout, and stderr respectively).
+    A pipe adds its sockets to the file descriptor table.  After forking, a child process can write data to one
+    end of the pipe while the parent reads from the other (or vice versa).
+    It's good practice to close unused file descriptors.
+
+    C Implementations:
+        Datagram Communication over UNIX Domain:
+            A socket name is defined as a "struct sockaddr_un" (see <sys/un.h> below)
+            Recall that names in the UNIX domain are path names (absolute or relative).
+            Create a socket via call to "socket(AF_UNIX, SOCK_DGRAM, 0)"
+            The socket is bound to the name via call to "bind()"
+            When finished, the socket is removed from the directory via call to "unlink()" or "rm()"
+
+        Datagram Communication over Internet Domain:
+            A socket name is defined as a "struct sockaddr_in" (see <netinet/in.h> below)
+            Create a socket via call to "socket(AF_INET, SOCK_DGRAM, 0)"
+            Messages sent over the socket are sent to the particular protocol routine on the destination machine.
+            The protocol routine interprets the address of the message and routes it to the correct socket.
+            One can listen (read from) all ports, but can only talk to (write to) a specific port.
+            When an address is bound to a socket, the system will assign it an unused port number.
+            This happens on explicit calls to "bind()" or when "connect()" or "send()" are used on an unbound socket.
+            To get the port number, you may call "getsockname()" to see which port was assigned.
+            It's best to use "ntohs()" or "ntohl()" to make sure you get the right port number representation.
+
+        Stream Connections:
+            Create a socket with "socket(domain, SOCK_STREAM, 0)" where "domain" is "AF_UNIX" or "AF_INET"
+            The function "listen()" makes a socket open to accept connections and initializes a connection queue.
+            After receiving a connection request, a server will typically create a socket to connect to the request
+            (via the "accept()" function), then attempt to read data from the socket.
+            Reads from an active connection will normally block until data is available.
+            You can avoid the blocking behavior by calling "select()" to check for pending requests before "accept()"
+            Once data has been read, the connection can be closed by a call to "close()" on either socket.
+            Calling "read()" on a closed connection will return immediately (with 0 bytes).
+
+    Related C Libraries:
+        <sys/socket.h>
+            int socket(int domain, int type, int protocol);
+            int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+            int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+        <sys/un.h>
+            struct sockaddr_un {short sun_family; char sun_path[108]; }
+        <netinet/in.h>
+            struct in_addr { in_addr_t s_addr; };
+            struct sockaddr_in {short sin_family; u_short sin_port; struct in_addr sin_addr; char sin_zero[8]; };
+        <apra/inet.h>   // Convert shorts/longs to/from network/host byte order.
+            uint32_t htonl(uint32_t hostlong):
+            uint16_t htons(uint16_t hostshort);
+            uint32_t ntohl(uint32_t netlong);
+            uint16_t ntohs(uint16_t netshort);

@@ -1,0 +1,138 @@
+TCP/IP: Transmission Control Protocol / Internet Protocol
+
+General:
+    IPv4 is VERY different from IPv6, btw.
+    IP specifies how two computers "find" eachother across a big ol' network.
+    TCP specifies exactly how the computer will exchange data (data formats, rates, etc.)
+
+Dictionary:
+    Datagram        A structured packet of data made up of a header and data payload.
+    Default Gateway The router for the subnetwork you are on.
+    End-to-end      A network design principle that only provides function for transmitting and routing traffic between
+                    end nodes and that all other processing should occur at the nodes.
+    Router          A computer whose sole purpose is to interface with a network, forwarding network packets back and
+                    forth between the local network and external networks.  Previously called a "gateway"
+    TCP/IP Stack    
+    Encapsulation   
+    UDP             ... A basic transport layer protocol providing an unreliable datagram service.
+
+General principles:
+    Decentralization - no single point of weakness in the network; all nodes equal.
+    End-node verification - the end-nodes (transmitter/receiver computers) are responsible for making sure transmission
+    was successful.  Network doesn't care.
+    Dynamic routing - end-nodes are connected via a multitude of paths.  Routers are responsible for choosing the best
+    path for a particular packet.
+    Specifies how routers should choose the best path for data between nodes.
+
+Internet Protocol (IP):
+    Provides end-to-end data communication specifications including how data should be packetized, addressed,
+    transmitted, routed, and received.
+    Controls routing, subnet masks, DNS, default gateways, IP addresses, etc.
+    IP is a 'routable' protocol (vs. 'non-routable' protocols), meaning you can divide a network into subnets.
+    Non-routable protocols combine all nodes into a single network.
+
+    Abstraction Layers: listed from highest to lowest layers
+        Application Layer: 
+            Handles process-to-process data exchange for applications.  This is the layer where higher-
+            Level protocols live (e.g. FTP, SSH, HTTP).  Processes are addressed via ports.
+
+        Transport Layer: 
+            Handles host-to-host communication.  UDP is the basic transport layer protocol.
+
+        Internet Layer: 
+            Contains internetwork methods for communication between independent networks.  Exchanges
+            Datagrams across network boundaries.  Provides a uniform networking interface that hides the
+            Underlying topology of the particular network connections.
+            Defines the addressing and routing structures used for the TCP/IP suite.
+            The primary protocol is the IP which defines IP addresses.
+            Transports datagrams to the next IP router that has the connectivity to a network closer to
+            the packet's final destination.
+
+        Link (Network Access) layer: 
+            Contains communication methods for data remaining in a single network segment (link)
+
+    IP Address:
+        Network.Sub.Host
+        NNN.NNN.NNN.NNN
+        An IP address is composed of a network ID (first 6 digits, left-to-right), a subnet ID (next 3), and a host
+        computer ID (last 3 digits).
+
+TCP:
+    Initial goals: 
+        Differences between local network protocols hidden using a common internetwork protocol.
+        Hosts responsible for communicatoin reliability, not the network itself (e.g. network need not guarantee
+        arrival time/order of packets).
+
+History:
+    Developed for the ARPANET through funding by DARPA in the 1960s-70s
+    Radio and satellite packet communications used different protocols - no way to intercommunicate.
+    Before packet communication, data was transmitted via circuit switching (e.g. telephone circuit board operators)
+    TCP first published in 1974
+
+Networking Problem Categories:
+    Addressing
+        Any device connected to a TCP/IP network has a unique physical "Machine Access Code" (MAC) address.
+        Low-level TCP/IP protocols use MAC addresses to move data across the physical network to the right device.
+        TCP/IP provides native support for logical addressing (via IP addresses).
+
+    Routing
+        Small networks can use the "dump and parse" method where any computer can place data onto a shared network
+        (like a bus) and all computers attached to the network listen for the data and decide whether it is intended
+        for them (e.g. matches their address).  This becomes infeasible in even moderate-sized networks.
+        Routers are used to break up a large network into smaller 'subnets'.  This establishes a hierarchy or tree-like
+        structure which allows data to travel between two nodes without hitting every other node on the network.
+        Routers shield a small subnet from all the traffic on a larger network and only pass in packets that are
+        addressed to a host on the subnet.  They also only pass OUT data with an address outside of the subnet, thus
+        keeping traffic between hosts on the subnet from going to the larger external network.
+
+        Subnets:
+            When an application generates a packet destined for a particular address, the computer will first look at
+            its local subnet for computers that match the address.  If it doesn't find a match, it goes to the default
+            gateway (router) and asks it to find the address on the external network.
+
+        Ports:
+            Multiple network applications can run on a single computer via the use of independent 'ports' which are
+            logical channels between an application and the TCP/IP stack.
+            Each port has its own unique ID number.
+
+    Name resolution
+        Users don't want to interact with IP addresses (or MAC addresses) so a user-friendly "domain name" must map
+        to a particular IP address through some service.  This process is called "name resolution" and occurs on
+        special name servers which contain large databases of name-address mappings.
+
+        Domain Name Service (DNS):
+            This is a service provided by TCP/IP that sets up a hierarchy of name servers for name resolution.
+
+    Error Checking and Flow control
+        All data transmissions must be checked for corruption and missing data.
+        All data transmissions must be positively acknowledged by the receiving node.
+        All routers on a network can speed up or slow down data rates without needing a separate communication channel
+        This process is called "flow control"
+
+    Interoperability
+        Thorough standards are openly published by the Internet Architecture Board (IAB), the Internet Engineering Task
+        Force (IETF) and the Internet Corporation for Assigned Names and Numbers (ICANN).
+        The IETF publishes "requests for comment" (RFCs) which become the official standards.
+
+Windowing:
+    Suppose computer c1 is trying to talk to computer c2 across a large network.
+         __                     __
+        [c1] - - p1 - - - - -> [c2]
+
+    c1 will first send a single packet of data called "p1".
+    When c2 receives p1, it sends an acknowledgement to c1 specifying that it received p1
+         __                     __
+        [c1] <- - - -ack(p1) - [c2]
+
+    Now that communication has been established, c1 will send more data (p2 and p3) to c2.
+         __                     __
+        [c1] - - p3p2 - - - -> [c2]
+
+    c2 then sends an acknowledgement specifying the LAST packet it received (in packet order).  Say it's p3.
+         __                     __
+        [c1] <- - - -ack(p3) - [c2]
+
+    As long as the acknowledgement from c2 specifies the last packet c1 sent (no lost packets), c1 will increase the
+    number of packets delivered at once (before ack).  The increase is according to some algorithm.
+    If the acknowledgement from c2 specifies a package OTHER than the last one sent by c1, c1 now knows the connection
+    has a problem and drops back to single-packet transmission again.
