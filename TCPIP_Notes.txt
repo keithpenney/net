@@ -51,11 +51,82 @@ Internet Protocol (IP):
         Link (Network Access) layer: 
             Contains communication methods for data remaining in a single network segment (link)
 
-    IP Address:
-        Network.Sub.Host
-        NNN.NNN.NNN.NNN
-        An IP address is composed of a network ID (first 6 digits, left-to-right), a subnet ID (next 3), and a host
-        computer ID (last 3 digits).
+    IP Address (IPv4):
+        An IP address is assigned to each network interface and must be locally unique (unique among
+        all other nodes on its subnet).
+        Under the IPv4 standards, an IP address is a 32-bit number composed of a network ID, 
+        a subnet ID, and a host computer ID. 
+        NNN.NNN.NNN.NNN     # "Dotted decimal notation" (N is digit 0-9; most common)
+        XX.XX.XX.XX         # Hexadecimal notation (X is digit 0-F)
+
+        Address Mask:
+            An IP address contains both the network address and the host ID.  It is impossible to parse
+            the two without knowing the address bit mask!  The address is the bitwise AND of the IP
+            address and the bitmask, while the host ID is the IP address AND ~bitmask.
+            E.g.
+                IP address: 146.246.246.10  Mask: 255.255.255.0
+                IP      10010010.11110110.11110110.00001010
+                Mask    11111111.11111111.11111111.00000000
+                NetAddr 10010010.11110110.11110110.00000000
+                HostID  00000000.00000000.00000000.00001010
+                This means the network address is 146.246.246.0 and the node ID is 10.
+
+            The mask can be specified by explicitly stating it (as in above example) or it can be given
+            as the number of bits reserved for the network address as in:
+                IP address: 146.246.246.10/24       # The first 24 bits are the network address.
+
+            The development of address masks came later in the formulation of the TCP/IP protocol.
+            Prior to address masks, 'address classes' were used (see 'The Natural Mask' below).  Because
+            of the problems that relatively strict address classes created, the technique of using address
+            masks to improve routing efficiency is called Classless Inter-Domain Routing or CIDR. CIDR was
+            intended to be a patch solution but has held up well (long enough for IPv6 to be formulated and
+            proliferated).
+
+        The Natural Mask:
+            Sometimes an address mask is not specified; in this case the 'natural mask' is implied.
+            The concept of the natural mask is inherited from a prior time when the IP protocol used
+            'address classes' (class A, B, or C) which were determined by the first few bits of an
+            IP address.  Address classes are no longer used, but the same technique is used to determine
+            the natural mask.
+
+            Rules for Determining the Natural Mask:
+                Given an IP address as a bit vector of length 32,
+                - If the first bit (MSb) is 0, the mask is 8 bits (255.0.0.0)
+                - If the first two bits are 10, the mask is 16 bits (255.255.0.0)
+                - If the first three bits are 110, the mask is 24 bits (255.255.255.0)
+                - If the first four bits are 1110, it is a multicast address and the mask is 255.255.255.255
+
+        Subnets and Subnet Masks:
+            An organization typically buys a chunk of addresses from an ISP based on how many unique
+            addresses they think they might need.  A medium-sized organization might need a 12-bit
+            block (4,096 addresses) and so might buy the chunk 192.168.16.0/20 (which contains the
+            addresses 192.168.16.0 to 192.168.31.255).  This is the chunk that is known to the outside
+            world and the ISP routes all traffic destined for any address within this range to the
+            organization's master router (gateway).
+
+            For purposes of convenience, the organization may choose to define any number of 'subnets'
+            within its address range.  These subnets are defined by subnet masks which must "add" bits
+            to the network mask (i.e. if the network mask is 255.255.255.0, the subnet mask cannot 
+            be 255.255.240.0).  These subnets are only known internally.
+
+        Reserved addresses:
+            n.n.n.0             # Refers to the network itself.
+            n.n.n.255           # Broadcast address.  Packets routed to all nodes on subnet n.n.n
+            0.0.0.0             # Designates the default route (configured locally).
+            127.0.0.1           # The "loopback" address (packets routed back to the sender).
+
+    IPv6:
+        Internet Protocol version 6 (IPv6) was originally created to (pardon the pun) address the address
+        depletion problem that the internet was facing after ~20 years of exponential growth under IPv4.
+        IPv6 uses 128-bit addresses and a hierarchical address structure to enable effectively infinite
+        addresses while reducing the burden on routers. Other benefits include built-in security
+        improvements and simplified headers (fixed-length, word-aligned).
+
+        As of 2019, IPv6 is widely (but not universally) supported and IPv4 is still a critical part of
+        the TCP/IP architecture. Some factors reducing the pressure on adoption of IPv6 standards are,
+            - CIDR adoption relieved depletion of address chunks (formerly "classes")
+            - private addresses and NAT used on internal addresses reduces demand for unique addresses
+            - dynamic assignment (via DHCP) further reduces demand for unique addresses
 
 TCP:
     Initial goals: 
@@ -69,12 +140,55 @@ History:
     Before packet communication, data was transmitted via circuit switching (e.g. telephone circuit board operators)
     TCP first published in 1974
 
-Networking Problem Categories:
+Fundamental Networking Challenges and TCP/IP Solutions:
     Addressing
+        Any functional networking method must be able to get data to any destination on the network.  In any
+        networking model that's not "broadcasting" this requires some scheme of uniquely identifying every node
+        on the network.
         Any device connected to a TCP/IP network has a unique physical "Machine Access Code" (MAC) address.
+        Note!  A MAC address is required on EACH network interface!  Therefore, if a computer has multiple network
+        cards installed, it will have multiple associated MAC addresses and potentially multiple IP addresses!
+
         Low-level TCP/IP protocols use MAC addresses to move data across the physical network to the right device.
         TCP/IP provides native support for logical addressing (via IP addresses).
 
+        A router (gateway) is a device that defines the boundary between one network and another (can
+        be considered an "outside" and an "inside").  Consequently, a router has TWO associated IP
+        addresses: one alias by which it is known to the outside world (must be "globally" unique) and
+        another alias (IP address) by which it is known to its local subnet (must be locally unique).
+
+        A packet can be addressed in three different ways.  Each has its own reserved IP addresses:
+            Unicast:    The packet is destined for only one node.
+            Multicast:  The packet is destined for multiple nodes on the network.
+            Broadcast:  The packet is destined for all nodes on the network.
+
+        Certain addresses are reserved for special purposes (see "IP Addresses" above).  Note particularly the
+        "loopback" address 127.0.0.1 which allows processes to address other processes on a single machine (a local
+        host) in the same manner that they address remote processes (a remote host).
+
+        Address Resolution:
+            Since the physical hardware transporting IP traffic doesn't understand the IP addressing scheme,
+            translation must take place in software.  The Address Translation Protocol (ARP) does just that.
+            When a gateway address is received that is not in the ARP table, the network adapter broadcasts
+            the IP address to everything connected to its external network.  Whenever a network adapter
+            sees its IP address broadcast like this, it returns its MAC address (hardware address).
+            This information is then cached by the network adapter into the ARP table.
+
+            The 'arp' command on a Unix system shows the ARP table.
+
+        Network Address Translation (NAT):
+            When you establish a new connection to the internet, you need to get an official globally unique
+            IP address (which costs money).  If your application is performance critical and must be globally
+            accessible, this is your best option.  Otherwise (99.99% of use cases), you can suffer the
+            performance hit by using NAT in either software or hardware form.
+            NAT isolates your private address space from that of the internet, and typically takes place in
+            your home router.  If you have 10 devices at home that all connect to the internet via your local
+            router, you can only pay for a single IP address (comes with your router) and all devices on the
+            local network can have free "RFC 1918" private-use addresses (see "Reserved IP Addresses" below).
+
+            The performance cost of NAT comes from the fact that each datagram needs to have its IP address
+            replaced and its checksum recalculated.  Fortunately, modern hardware is dope at this.
+ 
     Routing
         Small networks can use the "dump and parse" method where any computer can place data onto a shared network
         (like a bus) and all computers attached to the network listen for the data and decide whether it is intended
@@ -94,6 +208,67 @@ Networking Problem Categories:
             Multiple network applications can run on a single computer via the use of independent 'ports' which are
             logical channels between an application and the TCP/IP stack.
             Each port has its own unique ID number.
+
+        Routing Domains:
+            The original ARPAnet (the foundation of the internet) used a collection of "core gateways" which
+            routed all traffic.  This obviously doesn't scale well.  The model that was adopted to address
+            this challenge is based on co-equal collections of autonomous systems called "routing domains."
+            Each routing domain is responsible for knowing what addresses are 'reachable' through its network.
+            This reachability information is shared between routing domains using Border Gateway Protocol (BGP).
+            Efficient distributed routing is a complicated subject (but fortunately is pretty much entirely in
+            the realm of the ISPs), so I won't elaborate much on the subject for now.  A few keywords:
+
+                Internet Exchange Point (IXP): physical infrastructure through which ISPs route traffic
+                                               between autonomous systems.
+                Routing Arbiter (RA) Server:   physical servers installed at internet exchange points (IXPs).
+                Internet Routing Registry (IRR) : distributed routing information database stored on RA servers
+                Routing Table (Forwarding Table): a table in each router determining if packets are forwarded
+                    Note!  The 'route' command in Linux displays the local routing table.  See Unix notes.
+
+            Route Metric:
+                The 'metric' of a route in a routing table is the "cost" of the route.  This information is used
+                by dynamic routing protocols. 
+
+    Multiplexing:
+        Data of all forms originate from many difference processes on a single machine and must all be routed
+        to a single universal protocol (TCP/IP) and transmitted via a single (usually) network adapter.
+        Similarly, data arriving from the outside world can be bound for many different processes on a machine
+        and can represent many different types of data.  The encapsulating and de-encapsulating of data required
+        by TCP/IP is called "multiplexing" and is enabled primarily by three new concepts:
+
+            Protocols
+                The myriad types of data that pass through a network are divided into a relatively small number
+                (<256) of categories.  These categories determine how the data is handled and parsed.
+                Each protocol (category) is assigned a unique 'protocol number' (which is a single byte in the
+                datagram header).  The recognized protocols for a Unix system are listed under /etc/protocols
+                Common protocol numbers:
+                    0   IP      Internet protocol
+                    6   TCP     Transport control protocol
+                    8   EGP     External gateway protocol (used between gateways)
+                    17  UDP     User datagram protocol
+
+            Ports
+                There can be several different processes running on a single computer all using network services
+                on the same network adapter.  The concept of a 'port' and an associated 'port number' enables
+                packets to be routed to/from the correct process.
+                Port numbers are 16-bit values and those under 1024 are reserved for well-known services. These
+                reserved ports are sometimes called "privileged ports." The full list of reserved port numbers
+                is kept by the Internet Assigned Numbers Authority (IANA; iana.org).  Below are some examples:
+
+                Reserved ("privileged") Port Numbers:
+                    Number  Name        Protocol    Notes
+                    ------  ----        --------    -----
+                    1       tcpmux      TCP         TCP port service multiplexer
+                    7       echo        TCP/UDP
+                    9       discard     TCP/UDP     A bin bucket, null sink, etc.
+                    20      ftp-data    TCP
+                    21      ftp         TCP
+                    23      telnet      TCP
+                
+            Sockets
+                A "socket" is the combination of an IP address and a port number which uniquely identifies a
+                single process on the entire network. Networking terminology can get a little confused, so
+                sometimes people say "socket" when they mean "port number" but we're being explicit here.
 
     Name resolution
         Users don't want to interact with IP addresses (or MAC addresses) so a user-friendly "domain name" must map
@@ -136,3 +311,25 @@ Windowing:
     number of packets delivered at once (before ack).  The increase is according to some algorithm.
     If the acknowledgement from c2 specifies a package OTHER than the last one sent by c1, c1 now knows the connection
     has a problem and drops back to single-packet transmission again.
+
+IPv4 Special Use IP Addresses:
+------------------------------
+
+    Address Block       Scope           Notes
+    -------------       -----           -----
+    0.0.0.0/8           Software        Current network
+    10.0.0.0/8          Private network Only for local communication on private network
+    100.64.0.0/10       Private network Shared address space for communication between ISP and subscribers
+    127.0.0.0/8         Host            Used for loopback addresses to the local host
+    169.254.0.0/16      Subnet          Used for link-local addresses (w/in broadcast domain)
+    172.16.0.0/12       Private network Used for local communications w/in a private network
+    192.0.0.0/24        Private network IETF (Internet Engineering TaskForce) Protocol assignments
+    192.0.2.0/24        Documentation
+    192.88.99.0/24      Internet        Reserved. Formerly for IPv6-to-IPv4 relay.
+    192.168.0.0/16      Private network Used for local communications w/in a private network
+    198.18.0.0/15       Private network Used for benchmark testing between two subnets
+    198.51.100.0/24     Documentation
+    203.0.113.0/24      Documentation
+    224.0.0.0/4         Internet        In use for IP multicast
+    240.0.0.0/4         Internet        Reserved for future use (Class E network?)
+    255.255.255.255/32  Subnet          Reserved for the "limited broadcast" destination address.
