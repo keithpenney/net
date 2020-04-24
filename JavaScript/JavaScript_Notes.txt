@@ -10,6 +10,16 @@ General:
     JavaScript is loaded on a page in the brower's JavaScript engine after the HTML and CSS.
     Each browser tab is its own "execution environment" (no tab-to-tab scripting)
 
+Running JavaScript Files:
+-------------------------
+    JavaScript files (typically with extension .js) are interpreted by a JavaScript Runtime
+    Environment (an executable file which takes the JavaScript file as input and dynamically
+    generates and executes machine code).
+
+    Example JavaScript Runtime Environments:
+        Node.js
+            node[.exe] [options] [script.js] [arguments]
+
 Applying JavaScript to HTML:
 ----------------------------
     In-line HTML:
@@ -33,14 +43,20 @@ Web Console:
 Reserved Keywords:
 ------------------
     const               Declare a constant variable
+    do                  Begin a do-while loop.
     false               Boolean false value.
+    for                 Begin a for loop.
     function            Declare a function.
+    in                  Used within a 'for...in' loop
     let                 Declare a variable local in scope.
+    new                 Call a constructor function returning an object.
+    of                  Used within a 'for...of' loop
     return              Return a value (or nothing) from a function.
     true                Boolean true value.
     typeof              Returns the type of a variable.  NOT a function! // typeof myVar;
     undefined           This is the value for a var that has been declared but not initialized/assigned.
     var                 Declare a variable (will overwrite any global variable).
+    while               Begin a while loop.
 
 Operators:
 ----------
@@ -215,6 +231,9 @@ Variables:
         // ---- Syntax Example ---- //
         var dog = {breed : "mutt", name : "Roy Blount"};
         console.log(dog.name);  // Fetch an object property like pointer dereference
+        // --- End Example --- //
+
+        See "Object Prototypes" below for a detailed discussion.
 
 Functions:
 ----------
@@ -245,6 +264,10 @@ Functions:
 
         myButton.onclick = function() {
           alert("Thanks for clicking the button.");
+        }
+
+        function(arg1, arg2) {      // This is how to pass arguments to anonymous functions
+            return arg1 + arg2;
         }
         // ----  End Example  ---- //
 
@@ -321,14 +344,66 @@ Flow Control:
         } else {
             // Do stuff if neither condition is true
         }
-        Recall that the ternary operator (see 'Operators' above) can replace simple If statements and save space.
+        Recall that the ternary operator (see 'Operators' above) can replace simple If statements
+        and save space.
 
     For Loop:
     ---------
-        // ---- Syntax Example ---- //
+        For loops can be written in three different ways.  The basic for loop follows the C/Java
+        with only slight differences in what's allowed.  The basic for loop has the following
+        syntax:
+            for (INIT; COND; FINAL) { ...  };
+                INIT (optional) is an expression that evaluates once before the loop begins.
+                COND (optional) is an expression which is evaluated before every iteration through
+                     the loop and returns a boolean value.  If omitted, it always returns true.
+                FINAL (optional) is an expression evaluated at the end of each loop (before COND)
+                     and is typically used to increment a value tested within COND.
+                ...  is the expression(s) to execute on every loop.
+
+        // ---- Basic For Loop ---- //
         for (var i = 0; i < 10; i++) {
             // do this until i >= 10
         }
+        // --- End Example --- //
+
+        An alternate for loop syntax allows for iterating over all properties/methods/indicies of
+        an enumerable object.  The object could be an array, a class instance, a string, etc.
+        The syntax is:
+            for (KW FOO in ENUMERATOR) { ... };
+                KW  (optional) is 'let', 'var', or 'const' depending on the declaration/use of
+                    name FOO.
+                FOO is the name of the variable to take on values from ENUMERATOR.  On each loop,
+                    FOO will take on the value of another index of ENUMERATOR (be it a string, or
+                    number).  Items of ENUMERATOR can then be access via bracket notation:
+                    ENUMERATOR[FOO]
+                ENUMERATOR is the enumerable object over which to loop.
+                ... is the expression(s) to execute on every loop.
+
+        // ---- Enumerator For Loop "for ... in" ---- //
+        var myList = ["piggies", "kitties", "snakesss"];
+
+        for (const index in myList) {
+            console.log("I like " + myList[index]);
+        }
+        // --- End Example --- //
+
+        Another alternate for loop syntax allows for iterating over an iterable object. In this
+        case, instead of a variable taking on a value of a different index of the object on each
+        loop, it actually takes on the value of each particular property/method/item of the object.
+        The syntax is:
+            for (KW FOO of ITERATOR) { ... };
+                KW  (optional) is 'let', 'var', or 'const' depending on the declaration/use of
+                    name FOO.
+                FOO is the name of the variable to take on values from ITERATOR.  On each loop,
+                    FOO will take on the value of another item within ITERATOR.
+                ITERATOR is the enumerable object over which to loop.
+                ... is the expression(s) to execute on every loop.
+
+        // ---- Iterator For Loop: "for ... of" ---- //
+        for (const item of myList) {
+            console.log("I like " + item);
+        }
+        // --- End Example --- //
 
     Switch Statements:
     ------------------
@@ -366,15 +441,274 @@ Events:
     JavaScript UI is generally written in an event-based paradigm.  An event is a signal emitted
     (typically by an object) when something has occurred.  We register event handlers to respond
     to events based on our intended design outcomes.  Events exists only within the particular
-    browser session (are not system-wide).
+    browser session (are not system-wide). The exact way in which events are generated and handled
+    is dependent on the particular event model which is determined by the runtime environment in
+    which you're operating (i.e. Node.js).
 
     Event Listener:     A piece of code that waits for a particular event signal to arrive
     Event Handler:      A piece of code that is executed in response to an event signal
 
     There are several ways to make a function respond to an event.
-    // ---- Example ---- //
-    button.onclick = someFunction();
-    button.addEventListener('click', someFunction);
+
+    Object Properties:
+    ------------------
+        All objects which can respond to an event have a variety of properties which function as
+        callables which can be overwritten by the application programmer.  A property such as
+        'object.onclick' (as in the example below) can be assigned to a function (anonymous or
+        named), and that function is called when the particular event is triggered.
+
+        // --- Example --- //
+        button.onclick = someFunction;      // Named function (note that we're not calling this
+                                            // function, i.e. no trailing parentheses)
+        button.onclick = function() {       // Anonymous function
+            console.log("button clicked!");
+        }
+        // --- End Example --- //
+
+        Example Objects and Properties:
+        -------------------------------
+            button                          // Where is this class defined?
+                onclick                     // Respond to a button click
+                ondblclick                  // Respond to a double click
+                onmouseover                 // Respond to a mouse entering the button
+                onmouseout                  // Respond to a mouse leaving the button
+            window                          // Again, where dis?
+                onkeypress                  // Respond to key press (down) (only printable keys)
+                onkeydown                   // Respond to key press down (all keys)
+                onkeyup                     // Respond to key release (up) (all keys)
+
+    HTML Attributes (don't do this):
+    --------------------------------
+        The earliest method for registering an event handler was by adding an object attribute
+        directly in the HTML whose value was the JavaScript code to run when the event fires.
+        This method is strongly discouraged now since it mixes the visual representation (HTML)
+        with the functional behavior (JavaScript) inextricably.
+
+        // ---   Example   --- //
+        <button onclick = "alert("You just clicked me!");">Click me</button>
+        <button onclick = "myClickHandler();">Click me too</button>
+        // --- End Example --- //
+
+    Event Listeners:
+    ----------------
+        The newest method for registering event handlers is through an API introduced in the
+        Document Object Model (DOM) Level 2 Events specification.  It includes two new methods
+        inherited by nearly all objects.
+            addEventListener(evt, handler)  // Associate event 'evt' with a listener/handler
+            removeEventListener(evt, handler) // Remove association between 'evt' and 'handler'
+
+        // ---   Example   --- //
+        button = document.querySelector('button');  // Grab the first button from the HTML document
+        button.addEventListener('click', myClickHandler);   // Register a named handler function
+        button.addEventListener('click', function() {       // Register an anonymous handler
+            console.log("I got clicked.");
+            });
+        // --- End Example --- //
+
+        This method has a few benefits over the object properties method.
+        1) Multiple listeners can be registered for the same event.
+           Any other method would overwrite a previously registered handler/listener when a new
+           one is registered.
+        2) Unused handlers/listeners can be removed and garbage-collected when they are no longer
+           needed.
+
+        Example Events:
+        ---------------
+            Event reference: https://developer.mozilla.org/en-US/docs/Web/Events
+            Focus Events:
+                focus                   // An element has received focus
+                blur                    // An element has lost focus
+                focusin                 // An element is about to gain focus
+                focusout                // An element is about to lose focus
+            
+            WebSocket Events:
+                open                    // A WebSocket connection has been established
+                message                 // A message is received through a WebSocket
+                close                   // A WebSocket connection has been closed
+                error                   // A connection has been closed with prejudice
+
+            Keyboard Events:
+                keypress                // Any printable key is pressed (continuously fired)
+                keydown                 // Any key pressed (fired once)
+                keyup                   // Any key released (fired once)
+
+            Mouse Events:
+                click                   // Any click (soon to be only primary) press + release
+                auxclick                // Any non-primary button click press + release
+                contextmenu             // The right button clicked (before context menu popup)
+                dblclick                // A double-click occurred
+                mouseenter              // The cursor has moved onto the element
+                mouseleave              // The cursor has moved off the element
+                mouseover               // = mouseenter + the element's children
+                mouseout                // = mouseleave + the element's children
+
+    Event Objects:
+    --------------
+        An event handler can have an optional argument.  When the function is called, an event
+        object will be passed to the handler function as this argument.  An event object is an
+        instance of a class which implements the DOM Event interface.  The Event interface has
+        some standard properties but most event objects will have properties unique to the object
+        itself.
+
+        Event Interface:
+        ----------------
+            [properties]
+            target      // A (read-only) reference to the target to which the event was dispatched
+            type        // The name of the event (case-insensitive)
+            eventPhase  // Indicates which phase of the event flow is being processed
+            bubbles     // A boolean indicating whether the event bubbles up through the DOM
+
+            [methods]
+            preventDefault()    // Cancels the event if cancelable
+            stopPropagation()   // Stops the propagation of events further along in the DOM
+
+            This is a non-exhaustive list.  For more, visit this reference page.
+            Full Event Class Reference: https://developer.mozilla.org/en-US/docs/Web/API/Event
+
+        Example Event Interface: KeyboardEvent
+        --------------------------------------
+            [Properties]
+            key         // A DOMString representing the key corresponding to the event
+            code        // A DOMString with the code value of the physical key location
+            altkey      // Boolean. True if Alt (Options on OSX) was held when event occurred
+            ctrlkey     // Boolean. True if Ctrl was held when event occurred
+            shiftkey    // Boolean. True if Shift was held when event occurred
+            metakey     // Boolean. True if Windows key (Command key on OSX) held when occurred
+
+            [Methods]
+            getModifierState()  // Returns boolean indicating whether any modifier key was held
+                                // when the event occurred.
+
+            [Event Objects]
+            keydown
+            keyup
+            keypress (obsolete! don't use)
+
+        Preventing Default Behavior:
+        ----------------------------
+            Many events derived from HTML objects have default behavior that will occur unless
+            prevented.  In order to implement our custom application, we often need to prevent
+            this behavior.  An example is an HTML form object.  Typically when a form is submitted
+            the data is sent unvalidated to the target server.  In order to block the submission
+            upon entry of invalid data, we need to suppress the default behavior.  This is done
+            with an Event interface method, Event.preventDefault().
+
+            // ---   Example   --- //
+            var form = document.querySelector('form');  // Get the form from some HTML document
+
+            function dataIsValid() {
+              // Do something here to validate form data
+              if (...) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+
+            function validateAndSubmit(evt) {
+              if (!dataIsValid()) {
+                evt.preventDefault();           // If data is invalid, prevent default submission
+                alert("Data invalid!");
+              }
+            }
+
+            form.addEventListener('submit', validateAndSubmit);
+            // --- End Example --- //
+
+        Event Capturing and Bubbling:
+        -----------------------------
+            As with most event-based environments, an event continues to propagate after it meets
+            an event handler.  This means it can continue on to other event handlers registered on
+            the same object or a parent/child object.  The order in which event handlers will be
+            processed depends on the phase of the event object.
+
+            Capturing Phase:
+                The top-most parent object is first checked for handlers for the event, then the
+                family tree is walked down to the bottom-most child object searching for handlers
+                for a particular event.  By default all appropriately registered handlers will
+                execute in the order in which they are encountered.
+
+            Bubbling Phase:
+                The bubbling phase also searches for event handlers but does it in the exact
+                opposite order as the capturing phase (bottom-most child to top-most parent).
+
+            In most modern browsers, all events are registered for the bubbling phase (i.e. they
+            start at the bottom), but this can be configured per-event.
+
+            If we want to prevent an event from bubbling/capturing further, we can stop it in an
+            event handler with Event.stopPropagation()
+
+Object Prototypes:
+------------------
+    JavaScript is a mostly-object-oriented language.  Objects can be created as object literals
+    or as instances of a class/prototype. 
+
+    Object Literals:
+    ----------------
+        We can define an object simply by declaring it with the following syntax.  The resulting
+        item is known as an object literal.
+        // ---   Example   --- //
+        const myObject = {              // The 'const' keyword doesn't actually make this read-only
+          name : 'Demo Object';
+          coords : [100, 250];
+          dims : [120, 40];
+          getName: function() {
+            return this.name;
+          },                            // This comma is easy to forget
+          getCoords: function() {
+            return this.coords;
+          },
+          setName: function(name) {
+            this.name = name;
+          },
+          setCoords: function(x, y) {
+            this.coords = [x, y];
+          }                             // Of course there's no comma after the last item
+        }
+
+        // Property access via dot notation
+        console.log("object " + myObject.name + " is at (x = " + myObject.coords[0] + ", y = " \
+                    + myObject.coords[1] + ")");
+
+        // Property access via bracket notation
+        console.log("object " + myObject['name'] + " is " + myObject['dims'][0] + " wide and " \
+                    + myObject['dims'][1] + " high.");
+        // --- End Example --- //
+
+        We can also define an object literal using the constructor syntax (see below) and the
+        default object constructor Object().  Of course this would not populate the object, so we
+        would then need to add properties/methods to the object as needed, i.e:
+
+        // ---   Example   --- //
+            myObject = new Object();
+            myObject.name = "Ted";          // Adding using dot syntax
+            myObject['color'] = "Blue";     // Adding using bracket syntax
+        // --- End Example --- //
+
+    Constructors:
+    -------------
+        In JavaScript, a constructor serves as the class definition as well.  Syntactically, it's
+        a function that doesn't return anything and can use the 'this' identifier to specify
+        properties and methods of the resulting object.  When an object is to be instantiated from
+        a constructor, the 'new' keyword is used.
+
+        // ---   Example   --- //
+        function Person(name, age = 40) {
+          this.name = name;
+          this.age = age;
+          this.greeting = function() {
+            return "hello, my name is " + this.name + " and I'm " + this.age + " years old.";
+          };
+        }
+
+        let person1 = new Person("Keef", 31);
+        let person2 = new Person("Cecee", 30);
+        let person3 = new Person("Stokely", 0);
+
+        for (let person of [person1, person2, person3]) {
+          console.log(person.greeting());
+        }
+        // --- End Example --- //
 
 User Interface:
 ---------------
