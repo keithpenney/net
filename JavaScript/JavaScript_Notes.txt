@@ -39,6 +39,19 @@ Web Console:
     "Web Console" or "JavaScript Console" listed under the developer tools.
 
     console.log()       Output to the console
+    
+    Similar to Python's 'print()', console.log() can accept nearly anything as an argument. Basic
+    arguments include,
+        console.log("Any ol' string");
+        console.log(someObject);
+        console.log("This object, " + someObject + " is now stringified.");
+
+    It also accepts a special form of string enclosed by backticks (`) rather than single or double
+    quotes which functions sort of like bash evaluation.  Within the backticks, anything enclosed
+    in ${} will be evaluated before including in the string.
+        var myName = "Keef";
+        console.log("Hello, my name is " + myName); // One way to do it
+        console.log(`Hello, my name is ${myName}`); // Alternate, using backticks and evaluation
 
 Reserved Keywords:
 ------------------
@@ -680,9 +693,21 @@ Object Prototypes:
         would then need to add properties/methods to the object as needed, i.e:
 
         // ---   Example   --- //
-            myObject = new Object();
+            const myObject = new Object();
             myObject.name = "Ted";          // Adding using dot syntax
             myObject['color'] = "Blue";     // Adding using bracket syntax
+        // --- End Example --- //
+
+        Lastly, we can also create a new object based on an existing object (either a literal or
+        an instance) using the Object.create() method (not supported on IE8 or earlier, btw). This
+        is actually creating a second object using the first object as a prototype, which is
+        distinct from creating two objects from the same constructor, but for many simple purposes
+        it works in much the same way.
+
+        // ---   Example   --- //
+            const foo = { ... }             // Create some object
+            const bar = Object.copy(myObject)   // Create another object based on myObject
+            console.log(bar.__proto__)      // bar.__proto__ is a reference to foo.prototype
         // --- End Example --- //
 
     Constructors:
@@ -709,18 +734,197 @@ Object Prototypes:
           console.log(person.greeting());
         }
         // --- End Example --- //
+        
+        The constructor Property:
+        -------------------------
+            Every constructor function has a 'prototype' property whose value is an object
+            containing a 'constructor' property which is a reference to the constructor function.
+            So the 'constructor' property is actually a function, but it is NOT a method in that
+            it is not dependent on any properties of a particular object.
+
+            Therefore, if you don't have access to an object's constructor but you need to create
+            another object of the same class, you can use:
+                const newObject = new someObject.constructor(); // Note the 'new' keyword!
+
+            And of course to use the function as a constructor, you must use the 'new' keyword
+            (otherwise it will just call the function which by definitions retuns nothing).
+
+            Fun fact: you can get the name of the constructor with the 'name' property of the
+                      'constructor' property (i.e. foo.constructor.name).
+
+    Prototypes and Inheritance:
+    ---------------------------
+        JavaScript implements inheritance through prototypes, which are a special object
+        referenced by a parent object which contain all the methods/properties that are to be
+        inherited by child objects.  Note! This means not all methods/properties are inherited
+        like they are in Python.  Note also that there are no access permissions like C++.
+
+        Since ECMAScript 2015, there is now a standard method to get a reference to the prototype
+        of an object: Object.getPrototypeOf(obj)
+
+        Before ECMAScript 2015, many browsers supported (and still do) a special property called
+        "__proto__" which is a reference to the prototype object from which an object inherits.
+
+        Accessing Inherited Methods/Properties:
+        ---------------------------------------
+            Note that in JavaScript, inherited methods/properties are NOT copied to the child
+            object.  Instead, when a method is called (or a property is accessed), the runtime
+            engine first checks to see if that method/property is defined in the object itself. If
+            it is not, it walks up the inheritance tree to the next object and looks for it there.
+            It continues this process all the way up the tree - if a property is not found, it
+            returns undefined; if a method is not found, it throws TypeError.
+
+        Note that it is rarely useful to add properties directly to the prototype, as these will
+        end up being static (i.e. the same for all objects and descendents), which doesn't provide
+        much utility (though it's certainly allowed).
+
+        To add methods to a prototype, you simply use the 'prototype' property of the constructor
+        function.
+
+        // ---   Example   --- //
+            function Car(make, model, year) {
+              this.make = make;
+              this.model = model;
+              this.year = year;
+              this.description = [make, model, year].join(' ');
+            }
+
+            Car.prototype.getDescription = function() {
+              return this.description;
+            }
+        // --- End Example --- //
+
+        Inheritance:
+        ------------
+            Note: the following describes the implementation of inheritance before ECMAScript 2015.
+                  It is clunky and convoluted, but it was the only way to do it so it is common to
+                  see in older (pre-2015) codebases.
+
+            We can define a constructor (Constructor_B) which inherits from another constructor's
+            prototype (Constructor_A.prototype). Any objects instantiated from Constructor_B will
+            inherit all methods/properties defined on Constructor_A.prototype.
+
+            To implement this, we use the 'call' method of the constructor from which we want to
+            inherit (Constructor_A) within the inheriting constructor (Constructor_B).  The 'call'
+            method always take the first argment 'this', which is a reference to the resulting
+            object which will inherit from the constructor.  Thus, if a constructor takes no
+            arguments, its 'call' method still takes the argument 'this', i.e.:
+                Constructor_A.call(this); // within Constructor_B
+
+            The 'call' method takes care of inheritance of all properties/methods defined within
+            the constructor, but does not include any defined on the prototype.  To set up the
+            prototype chain, we need to assign the prototype. Note that this must occur before
+            defining any methods/properties of the prototype or they will be clobbered by this
+            assignment.  I.e.
+                Constructor_B.prototype = new Constructor_A();  // One way of doing it
+                Constructor_B.prototype = Object.create(Constructor_A.prototype); // Another way
+
+            Finally if we want to make use of the 'constructor' property, we need to reassign it
+            since it was clobbered by the above 'prototype' assignment. I.e.
+                Constructor_B.prototype.constructor = Constructor_B;    // One way of doing it
+                Object.defineProperty(Constructor_B.prototype, 'constructor', { // Another super
+                  value : Protagonist,                                  // verbose way of doing
+                  enumerable : false,                                   // it.  Not sure if there
+                  writable : true                                       // are benefits.
+                  });
+
+            // --- Continuing from example above --- //
+                function UsedCar(make, model, year, mileage) {
+                  Car.call(this, make, model, year);  // Note the 'call' method and 'this' keyword
+                  this.mileage = mileage;             // A property not inherited from Car
+                }
+
+                UsedCar.prototype = new Car();          // Set up the prototype chain
+                UsedCar.prototype.constructor = UsedCar;// Re-establish the constructor
+            // --- End Example --- //
+
+Classes and ECMAScript 2015:
+----------------------------
+    ECMAScript 2015 defines a new syntax which makes JavaScript objects and inheritance clearer
+    using conventions borrowed from C++/Java.
+
+    The 'class' Keyword:
+    --------------------
+        ECMAScript 2015 introduces the keyword 'class' which is used to define an object prototype
+        complete with its constructor, properties, and methods all in one place, very much like
+        Java/C++.
+
+        // ---   Example   --- //
+        class Person {                                  // Class definition
+          constructor(name, age, height, interests) {   // Constructor definition
+            this.name = name;                           // Properties defined using 'this' as
+            this.age = age;                             // before
+            this.height = height;
+            this.interests = interests;
+          }                                             // Note! Constructor doesn't require a ';'
+
+          greeting() {                                  // Method definition
+            console.log("Hello, I'm " + this.name);     // Still have access to 'this' reference
+          };
+        }                                               // Also doesn't require a ';'
+
+        // --- End Example --- //
+
+    Inheritance:
+    ------------
+        Inheritance using the ECMAScript 2015 syntax is greatly simplified and clarified.  It
+        introduces the keyword 'extends' to indicate that the class we're defining inherits from
+        another.  The 'super()' method is also introduced which calls the constructor of the parent
+        class.
+
+        // ---   Example   --- //
+        class Musician extends Person {
+          constructor(name, age, height, instruments) {
+            super(name, age, height, interests = ['music']);
+
+            this.instruments = instruments;
+          }
+        // --- End Example --- //
+
+    Getters and Setters:
+    --------------------
+        ECMAScript 2015 also introduced the keywords 'get' and 'set' to provide a nifty (albeit
+        sneaky) way to access properties safer and more elegantly.  And as an extra bonus, the
+        public syntax is unchanged, so people won't even know what's going on in the 'back end'.
+
+        // ---   Example   --- //
+        class SneakyFish {
+          constructor(name, weight) {
+            this.name = name;
+            this._weight = weight;      // Here we mangle the name 'weight' so it doesn't get
+          }                             // clobbered by the getters/setters
+            
+          get weight() {
+            return this._weight;        // We won't modify the getter in this example
+          }                             // Apparently this don't need a ';'
+
+          set weight(newWeight) {
+            newWeight = Number(newWeight);  // We'll sanitize the input a little
+            this._weight = Math.abs(newWeight); // Can't have a negative weight, can we?
+          }                             // This neither...
+        }
+
+        let martin = new SneakyFish("Martin", 5);
+        console.log(`${martin.name} weighs ${martin.weight}lbs.`);
+
+        martin.weight = "-25";          // This input should be sanitized.
+        console.log(`Ol' ${martin.name} got fat and now weighs ${martin.weight}lbs!`);
+        // --- End Example --- //
 
 User Interface:
 ---------------
     // ---- Examples ---- //
     window.alert(msg);                  // a pop-up windows with a message 'msg' and an 'ok' button
-    var response = window.prompt(msg);  // a window with an input field showing 'msg' and asking for user input
+    var response = window.prompt(msg);  // a window with an input field showing 'msg' and asking for
+                                        // user input
     
 Browser APIs:
 -------------
     Document Object Model (DOM) API:    Enables dynamic manipulation of HTML elements.
-        document.querySelector('sel')   Returns a reference to the first object matching CSS selector 'sel'
-        document.querySelectorAll('sel') Returns a list of references for all objects matching CSS selector 'sel'
+        document.querySelector('sel')   // Returns a reference to the first object matching CSS
+                                        // selector 'sel'
+        document.querySelectorAll('sel') // Returns a list of references for all objects matching
+                                        // CSS selector 'sel'
 
     Geolocation API:                    Enables discovery of user location and GPS.
     Canvas API:                         2D graphics and animation
