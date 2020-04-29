@@ -9,6 +9,7 @@ General:
     Comments are C-style // single line or /* multi-line */
     JavaScript is loaded on a page in the brower's JavaScript engine after the HTML and CSS.
     Each browser tab is its own "execution environment" (no tab-to-tab scripting)
+    Allows trailing commas in array-like objects (ignored)
 
 Running JavaScript Files:
 -------------------------

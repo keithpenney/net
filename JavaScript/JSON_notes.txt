@@ -1,0 +1,160 @@
+JavaScript Object Notation (JSON) format notes
+----------------------------------------------
+
+General:
+--------
+    JSON is a text-based format standard for portably sharing data between
+    computing environments which is based on the JavaScript object syntax.
+    Though JSON looks like JavaScript, it can be used independent of JS and
+    parsers/packagers for JSON data exist for many programming languages.
+
+    Nomenclature:
+    -------------
+        Serialization: converting a native code object to a string (following
+                        JSON format).
+        Deserialization: converting a string to a native code object (again,
+                        following JSON format for this discussion).
+
+    JavaScript has a global JSON object with (de)serialization methods to make
+    the conversion process as painless as possible.
+
+    JSON objects can be stored in their own text file (extension .json) or as
+    MIME type application/json.
+
+Syntax:
+-------
+    * JSON format is only for data (i.e. properties, not methods)
+    * Strings must use double-quotes (""), single quotes ('') are not valid.
+    * Always validate JSON data before using; JSONLint can help with that.
+    * All property names must be quoted - no unquoted strings!
+    * Supports boolean literals (true, false), numbers, strings, arrays,
+      and escape sequences \", \/, \\, \b, \f, \n, \r, \t
+    * Supports unicode escape characters, i.e. \u001F
+    * No support for comments!
+
+    // ---   Example   --- //
+    {
+      "name" : "Karate Mountain",
+      "active" : true,
+      "firstAlbumYear" : 2013,
+      "members" : [
+        "Keith Penney",
+        "Pete Agraan",
+        "Nahum Zdybel",
+        "Matt Roads",
+        "Casey Lipka",
+        "Taylor Rankin"
+        ],
+      "albums" : [
+        {
+          "name" : "The Bravest Beetle",
+          "year" : 2013,
+          "numTracks" : 10,
+          "tracks" : [
+            "If I Say it's Christmas then it's Christmas",
+            "Howard the Cowherd",
+            "Karate",
+            "Courage",
+            "Promise Your Life Away",
+            "Kitty Carlisle",
+            "From Rags to More Rags",
+            "The Robin",
+            "Samuel Clemens on Horseback",
+            "Here's Hoping"
+          ]
+        },
+        {
+          "name" : "More Than Ever Before",
+          "year" : 2015,
+          "numTracks" : 9,
+          "tracks" : [
+            "Everyone Deserves Forgiveness",
+            "Like Finding Whales in Water",
+            "Between the Marigolds",
+            "A Good Author",
+            "I'm Without Words",
+            "An 'Eff' for Effort",
+            "You've Been Coloring Again",
+            "It Takes a Hero",
+            "I Love Your Planet"
+          ]
+        },
+        {
+          "name" : "don't be afraid",
+          "year" : 2018,
+          "numTracks" : 7,
+          "tracks" : [
+            "Pure Cinema",
+            "A Confederacy of Nahums",
+            "Call Us Raucous Monsters",
+            "Oh Don't You Wonder",
+            "Banghaiwiki",
+            "Hell is a Waste of Time and Space",
+            "Whatever You Want"
+          ]
+        }
+      ]
+    }
+    // --- End Example --- //
+
+Importing (Deserializing) JSON Data (JavaScript):
+-------------------------------------------------
+    XMLHttpRequest:
+    ---------------
+        One way to obtain and parse JSON data is via an HTTP request from a
+        remote server.  We can do this easily with an XMLHttpRequest (XHR).
+        An XMLHttpRequest is a JavaScript object with methods for requesting
+        and receiving various types of data from remote servers (i.e. images,
+        JSON data, HTML snippets, etc).
+
+        The XHR handles the HTTP request configuration, sends the request, and
+        generates an event upon receipt of the response from the server.  It
+        also parses the resulting response based on the 'responseType' for
+        which it was configured.  After the 'onload' event is triggered, the
+        received data is available (already parsed) for use as an object as
+        the 'response' property of the XHR object.
+        
+        // ---   Example   --- //
+        let requestURL = "https://someserver/somepage/etc";
+
+        let request = new XMLHttpRequest(); // Create new XHR object
+        request.open('GET', requestURL);    // HTTP 'GET' request to URL
+        request.responseType = 'json';      // We expect a JSON object back
+        request.send();                     // send the request
+
+        request.onload = function() {
+          const jsonObj = request.response; // JSON response auto-parsed
+                                            // by XHR. Available as 'response'
+          handleData(jsonObj);              // property after received.
+        }
+
+        function handleData(jsonData) {
+            // do something with the JSON object we requested
+        }
+        // --- End Example --- //
+
+    String Parsing with JSON Object:
+    --------------------------------
+        JavaScript engines (both browsers and server runtime engines) provide
+        an object called 'JSON' which has methods to (de)serialize JSON data.
+        If we receive a string known to be in JSON format, we can parse it into
+        an object with 'JSON.parse()'.  If we have an object we need to convert
+        to a JSON string, we can do so with 'JSON.stringify()'.
+
+        JSON.parse(s);      // Accepts string 's' and returns JavaScript object
+        JSON.stringify(o);  // Accepts object 'o' and returns JSON string
+
+Handling JSON Data in Python:
+-----------------------------
+    Python 2/3 comes with the built-in library 'json' with the following
+    functions (non-exhaustive list).
+
+    json.load(fd, ...)      # Read a JSON string from file descriptor 'fd' and
+                            # return a native Python object (typically a dict,
+                            # or list with ints, strings, etc)
+    json.loads(s, ...)      # Deserialize 's' (string, bytes, bytearray) and
+                            # return a native Python object
+    json.dumps(obj, ...)    # Format the native Python object 'obj' as JSON and
+                            # return it as a string
+    json.dump(obj, fd, ...) # Format the native Python object 'obj' as JSON and
+                            # write it to file descriptor 'fd'

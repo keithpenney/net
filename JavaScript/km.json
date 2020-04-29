@@ -1,0 +1,62 @@
+{
+  "name" : "Karate Mountain",
+  "active" : true,
+  "firstAlbumYear" : 2013,
+  "members" : [
+    "Keith Penney",
+    "Pete Agraan",
+    "Nahum Zdybel",
+    "Matt Roads",
+    "Casey Lipka",
+    "Taylor Rankin"
+    ],
+  "albums" : [
+    {
+      "name" : "The Bravest Beetle",
+      "year" : 2013,
+      "numTracks" : 10,
+      "tracks" : [
+        "If I Say it's Christmas then it's Christmas",
+        "Howard the Cowherd",
+        "Karate",
+        "Courage",
+        "Promise Your Life Away",
+        "Kitty Carlisle",
+        "From Rags to More Rags",
+        "The Robin",
+        "Samuel Clemens on Horseback",
+        "Here's Hoping"
+      ]
+    },
+    {
+      "name" : "More Than Ever Before",
+      "year" : 2015,
+      "numTracks" : 9,
+      "tracks" : [
+        "Everyone Deserves Forgiveness",
+        "Like Finding Whales in Water",
+        "Between the Marigolds",
+        "A Good Author",
+        "I'm Without Words",
+        "An 'Eff' for Effort",
+        "You've Been Coloring Again",
+        "It Takes a Hero",
+        "I Love Your Planet"
+      ]
+    },
+    {
+      "name" : "don't be afraid",
+      "year" : 2018,
+      "numTracks" : 7,
+      "tracks" : [
+        "Pure Cinema",
+        "A Confederacy of Nahums",
+        "Call Us Raucous Monsters",
+        "Oh Don't You Wonder",
+        "Banghaiwiki",
+        "Hell is a Waste of Time and Space",
+        "Whatever You Want"
+      ]
+    }
+  ]
+}
