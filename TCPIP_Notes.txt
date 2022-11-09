@@ -131,7 +131,7 @@ Internet Protocol (IP):
 TCP:
     Initial goals: 
         Differences between local network protocols hidden using a common internetwork protocol.
-        Hosts responsible for communicatoin reliability, not the network itself (e.g. network need not guarantee
+        Hosts responsible for communication reliability, not the network itself (e.g. network need not guarantee
         arrival time/order of packets).
 
 History:
@@ -311,6 +311,25 @@ Windowing:
     number of packets delivered at once (before ack).  The increase is according to some algorithm.
     If the acknowledgement from c2 specifies a package OTHER than the last one sent by c1, c1 now knows the connection
     has a problem and drops back to single-packet transmission again.
+
+Link-Layer Protocols:
+---------------------
+  Address Resolution Protocol (ARP):
+  ----------------------------------
+    ARP is implemented in the link layer and is used to find the MAC address associated with an IP address.  Messages
+    are point-to-point and are never routed outside the local network (i.e. stay within boundaries of the gateway).
+    A node must implement ARP response, and can optionally manage an ARP cache (table of IP : MAC associations).
+    
+    Example:
+      A packet is delivered by IP layer to link layer with destination address X (i.e. IPv4 address).  The link layer
+      looks for an entry in its ARP cache for address X.  If found, the associated MAC address is used for the link
+      layer packet.  If not found, the link layer should (almost uniformly does) store the packet for later
+      transmission, then broadcast an ARP request across the network (destination MAC address FF:FF:FF:FF:FF:FF) with
+      address query 'X'.  Every node on the network receives this packet.  If any node's address matches 'X', it will
+      respond with an ARP response containing its IP and MAC addresses.
+      The link layer of the host device then receives the ARP response and adds the included IP:MAC association to its
+      ARP cache, and seeing it has a pending packet for the MAC address, sends the original packet to the newly
+      discovered node.
 
 IPv4 Special Use IP Addresses:
 ------------------------------

@@ -1,0 +1,224 @@
+User Datagram Protocol Notes
+
+Notation:
+---------
+  Bit structures shown below are ordered LSB-to-MSB left-to-right (i.e. bit 0 is on the left).
+  Literal numbers expressed in binary and hexadecimal are written with MSB on the left (e.g. 0x7A = 0b01111010)
+
+IPv4:
+-----
+  When a datagram is sent over IPv4, the full packet (at the "Internet Layer") is 20-bytes in length (or greater).
+  If the 'IHL' (see below) is > 5, the header length is 4*IHL bytes (octets) long.
+  The structure follows:
+  Header:
+  -------
+    | IP Header (>=20B) | Datagram |
+     ____/\___________________________________________________________________________________________
+    /                                                                                                 \
+    | Version (4b) | IHL (4b) | DSCP (6b) | ECN (2b) | Total Length (16b) | ID (16b) | Flags (3b) |
+      Fragment Offset (13b) | TTL (8b) | Protocol (8b) | Header Checksum (16b) | Source IP Addr (32b) |
+      Dest IP Addr (32b) |
+
+    Field Name      Length (bits)   Description
+    -------------------------------------------
+    Version         4               IP Protocol Version. Always '4' for IPv4
+    IHL             4               IP Header Length (in 32b increments). Min 5, max 15.
+    DSCP            6               Differentiated Services Code Point. Used for specialized service (i.e. VoIP)
+    ECN             2               Explicit Congestion Notification. Optional feature.
+    Total Length    16              The entire packet size in bytes.  Min = 20. Max = 65535
+    Identification  16              Primarily used for keeping track of fragmented datagrams.
+    Flags           3               Bitmask: Bit 0 = Rsvd; Bit 1 = "Don't Fragment" (DF); Bit 2 = "More Fragments" (MF)
+    Fragment Offset 13              For fragmented packets, holds the offset from beginning in 8-byte increments.
+    Time to Live    8               Specifies the time (in "hops") for the packet to survive.
+    Protocol        8               This is the protocol number (e.g. TCP = 6, UDP = 17).  See /etc/protocols.
+    Header Checksum 16              Every router computes the checksum of the header and compares it with this value.
+    Source IP Addr  32              IPv4 address of sender (field can be changed by Network Address Translation)
+    Dest IP Addr    32              IPv4 address of recipient (field can be changed by Network Address Translation)
+
+  Fragmentation:
+  --------------
+    If a packet is too large for some node in a link to handle, it can optionally be fragmented into smaller packets.
+    If the "Don't Fragment" (DF) bit in the Flags field is set and fragmentation must occur at a node, the packet is
+    dropped.  The DF flag can be used if, for instance, a host does not have the resources to fragment/reassemble a
+    packet.  For a packet that has been fragmented into N packets ("sub-packets"), each "sub-packet" up to the N-1th
+    will have its "More Fragments" (MF) bit set in the Flags field.  The Nth sub-packet will have MF cleared, but will
+    have a non-zero Fragment Offset field to distinguish it from a non-fragmented packet.
+
+    To reassemble a fragmented packet, the "Fragment Offset" field is used.  Each sub-packet will have a non-zero offset
+    (measured in 8-byte increments).  The sub-packets can then arrive in any order and the packet can be reconstructed
+    completely.  If a single sub-packet is dropped or corrupted, data corruption will occur.  But because of the offset
+    feature (rather than a 'packet number' feature), the corruption is localized to the space of that sub-packet.  This
+    may leave other portions of the original packet useable.
+
+  Time-to-Live (TTL):
+  -------------------
+    The "Time to Live" (TTL) field is documented as the time in seconds for a packet to survive before it is dropped
+    (to prevent cascading network failure due to congestion).  In practice, each router in the route decrements the TTL
+    of each packet before transmitting to the next node.  If the TTL value reaches 0, the packet is dropped.  This can
+    be used to measure hops in the transport. When a packet is dropped, the router typically sends an "ICMP Time Exceeded"
+    message to the sender.
+
+  UDP Datagram Structure:
+  -----------------------
+    When the payload of an IP packet is a datagram (as in UDP), its contents are structured as a packet with its own header
+    structure.
+      | IP Header | Datagram |
+         _____________/\____
+        /                   \
+        | UDP Header | Data |
+           ___/\________________________________________________________________
+          /                                                                     \
+          | Source Port (16b) | Dest Port (16b) | Length (16b) | Checksum (16b) |
+  
+      Field Name      Length (bits)   Description
+      -------------------------------------------
+      Source Port     16              Socket port number of source (optional; could also be 0x0000)
+      Dest Port       16              Socket port number of destination (mandatory)
+      Length          16              Length of datagram including header and data in octets. >= 8. Must be even number?
+      Checksum        16              16-bit one's complement of one's complement sum of pseudo-header (see below).
+  
+    Pseudo-Header
+    -------------
+      In IPv4, the checksum is optional.
+      For checksum calculating purposes, the pseudo-header is the following:
+        | Source Addr (32b) | Dest Addr (32b) | 0x00 (8b) | Protocol (8b) | UDP Length (16b) |
+  
+      Protocol = 17 (UDP protocol number defined by IETF in RFC768)
+      UDP Length is the same length in the UDP header Length field (length of UDP header and data)
+
+    Checksum:
+    ---------
+      Recall that -N in one's complement can be found by simply negating each bit of +N (e.g. +9 = 0b01001, -9 = 0b10110)
+      In one's complement arithmetic, the carry bit (i.e. bit 17 in 16-bit arithmetic) is added in the LSb place (wraps).
+      The final sum is then one's complemented (negated) to yield the checksum value.
+
+UDP-over-Ethernet Full Packet Diagram:
+--------------------------------------
+EtherType = IPv4
+IP Header Length (IHL) = 5
+
+(Byte-Offset, relative to Start of Frame)
+
+===============
+== Data Path ==
+===============
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                                             \/
+           __________________________________/
+          /                            \
+(14)      | IP Header (20B) | Datagram |
+                                 \/
+             ____________________/\__
+            /                        \
+(34)        | UDP Header (8B) | Data |
+                                 \/
+               __________________/\_________
+              /                             \
+(42)          | Data (Application-Specific) |
+
+==========================
+== Ethernet Header Path ==
+==========================
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                    \/
+           _________/\____________________________________________________
+          /                                                               \
+(0)       | Dest MAC (6B) | Src MAC (6B) | EtherType & 802.1Q Tag (2B/6B) |
+
+====================
+== IP Header Path ==
+====================
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                                             \/
+           __________________________________/
+          /                            \
+(14)      | IP Header (20B) | Datagram |
+                 \/
+             ____/\___________________________________________________________________________________________
+            /                                                                                                 \
+(14)        | Version (4b) | IHL (4b) | DSCP (6b) | ECN (2b) | Total Length (16b) | ID (16b) | Flags (3b) |
+              Fragment Offset (13b) | TTL (8b) | Protocol (8b) | Header Checksum (16b) | Source IP Addr (32b) |
+              Dest IP Addr (32b) |
+
+=====================
+== UDP Header Path ==
+=====================
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                                             \/
+           __________________________________/
+          /                            \
+(14)      | IP Header (20B) | Datagram |
+                                 \/
+             ____________________/\__
+            /                        \
+(34)        | UDP Header (8B) | Data |
+                     \/
+               ______/\_____________________________________________________________
+              /                                                                     \
+(34)          | Source Port (16b) | Dest Port (16b) | Length (16b) | Checksum (16b) |
+
+  Offsets to Useful Fields:
+  -------------------------
+    Field       Offset (B)  Length (B)
+    ----------------------------------
+    Dest MAC    0           6
+    Src MAC     6           6
+    Protocol    23          1
+    Src IP      26          4
+    Dest IP     30          4
+    Src Port    34          2
+    Dest Port   36          2
+    UDP Length  38          2
+    UDP Data    42          (value at UDP Length field)
+
+IPv6:
+-----
+  When UDP is carried over IPv6, there are several differences.
+
+  UDP Datagram Structure:
+  -----------------------
+
+    Pseudo-Header
+    -------------
+      In IPv6, the checksum is mandatory.
+      For checksum calculating purposes, the pseudo-header is the following:
+        | Source Addr (128b) | Dest Addr (128b) | UDP Length (32b) | 0x000000 (24b) | Next Header = Protocol (8b) |
+
+      The value of the Next Header field is always 17 (UDP protocol number)
+

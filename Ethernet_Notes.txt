@@ -1,0 +1,90 @@
+Ethernet Networking Protocol Notes
+----------------------------------
+
+General:
+--------
+  Communication between 48-bit "Ethernet Addresses" (MAC addresses).
+  Broadcast destination address is FF:FF:FF:FF:FF:FF
+  Data sent in frames with CSMA/CD
+
+Ethernet Frame:
+---------------
+  Specified in IEEE 802.3.
+
+  Minimum packet size = 64 octets
+
+  MTU = maximum transmissable unit = 1500 octets (above MTU is "jumbo frame")
+
+  Ethernet transmits data with the most-significant octet (MSB) first, though within each octet the least-significant
+  bit (LSb) is transmitted first.
+
+  Packet Structure:
+  -----------------
+    In the below diagram 'b' means bit and 'B' means octet (8 bits).  Therefore 8b=1B
+
+    | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                 \/
+     ____________/\________________________________________________________
+    /                                                                      \
+    | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                       \/
+     __________________________________________________/\_________
+    /                                                             \
+    | Ethernet Header (14B/18B) | Payload (46-1500B) | CRC32 (4B) |
+              \/
+     _________/\____________________________________________________
+    /                                                               \
+    | Dest MAC (6B) | Src MAC (6B) | EtherType & 802.1Q Tag (2B/6B) |
+
+    Field Name      Length (octets) Description
+    -------------------------------------------
+    Preamble        7               56b toggling (1010101...) for clock synchronization
+    Start Frame     1               Start Frame Delimiter (SFD) = 0b10101011
+    802.1Q Tag      4 (optional)    This field is optional.
+    EtherType       2               Length or EtherType (see below)
+
+  EtherType and 802.1Q Tag:
+  -------------------------
+    The EtherType field is a 2-byte (16b) field in the Ethernet packet structure. When the EtherType field value is
+    1500 or less, the field should be interpreted as the length of the payload.  When the EtherType field value is
+    1536 or above, it should be interpreted as the EtherType which indicates which protocol is encapsulated within
+    the payload.
+
+    If the EtherType field is 0x8100, it is interpreted as the Tag Protocol Identifier (TPID) of the IEEE 802.1Q
+    standard and the following 4 octets are part of the 802.1Q Tag.  If the EtherType field is 0x88a8, it should be
+    interpreted as the TPID of the IEEE 802.1ad standard and the following 4 octets are again part of the 802.1ad Tag.
+    Both of these standards are designed to support virtualized networking and network bridging (VLAN support).
+    If the EtherType is not 0x8100 or 0x88ad, the Ethernet Header is only 14B long.  Otherwise it is 18B.
+
+    Some common EtherType values are listed in the table below.
+
+    EtherType     Desc
+    ------------------
+    0x0800        IPv4
+    0x0806        ARP
+    0x0842        Wake-on-LAN
+    0x8100        VLAN-tagged frame (IEEE 802.1Q)
+    0x86DD        IPv6
+    0x88A8        Service VLAN tag identifier (S-Tag) on Q-in-Q Tunnel
+    0x88F7        Precision Time Protocol (PTP) over IEEE 802.3 Ethernet
+
+  Payload:
+  --------
+    The contents of the payload depend on the protocol type encapsulated within the Ethernet frame.  The minimum size
+    is set by the minimum Ethernet Frame size of 64 octets.  Thus, if 802.1Q Tag is present, the minimum payload size
+    is 64-4-18 = 42 octets.  Otherwise, it is 64-4-14 = 46 octets (remember the 4B CRC32).
+
+    The payload must be zero-padded up to the minimum size if necessary.  The padding octets are not included in the
+    calculation of the length field within the payload (i.e. IP length).
+
+    The payload protocol is typically either IP or ARP.
+
+  Interpacket Gap:
+  ----------------
+    Transmitters are required to transmit 96 bits of idle line state before transmitting the next packet.
+
+Carrier Sense Multiple Access with Collision Detection (CSMA/CD):
+-----------------------------------------------------------------
+  CSMA/CD was an early feature of Ethernet PHY and is still supported, but is less critical due to evolving network
+  topology preferences.  The proliferation of packet switching has converted the previous shared bus architecture
+  (multi-link bus) into a tiered star (point-to-point links).
