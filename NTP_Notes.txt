@@ -1,0 +1,116 @@
+Network Time Protocol (NTP) Notes
+---------------------------------
+
+Versions:
+---------
+  NTPv0: RFC 778  (1981)
+  NTPv1: RFC 1059 (1998)
+  NTPv2: RFC 1119 (1989)
+  NTPv3: RFC 1305 (1992)
+  NTPv4: RFC 5905 (2010)
+
+Simple Network Time Protocol (SNTP):
+------------------------------------
+  Simplified version of NTP (does not support some features).
+  SNTPv4: RFC 5905 (2010)
+  Below, anything not supported by SNTP will be called out explicitly.
+  Applications:
+    Primary Servers with a single reference clock.
+    Clients with a single upstream server and no dependent clients/servers.
+  Not applicable for Secondary Servers.
+
+General:
+--------
+  Messages exchanged via UDP on port 123
+
+Architecture:
+-------------
+  Every node (machine or software instance) implementing NTP acts in one of the
+  following roles:
+    Primary Server    - Synchronized directly to a reference clock. Has no
+                        upstream server. Has one or more downstream server or
+                        client.
+    Secondary Server  - Has one or more upstream servers and one or more
+                        downstream servers or clients
+    Client            - Synchronized to one or more servers but does not provide
+                        synchronization to dependent clients
+  Network topology formed by such servers and clients is organized and dynamically
+  re-organized as needed to produce the shortest-distance spanning tree rooted at
+  a primary server (I guess it uses something called a "Bellman-Ford routing
+  algorithm").
+
+  Server Responsibilities:
+  ------------------------
+    Return response to client packet
+    Retain no state
+    Each server is assigned a 'stratum' indicating how many levels it is removed
+    from a primary server in a network.  Primary servers have stratum 1. Secondary
+    servers have stratum 1 greater than that of their upstream server.
+    Stratum 0 devices are precision reference clocks (i.e. atomic clocks, radio
+    clocks, GNSS or GPS synchronized, PTP synchronized), but an NTP server cannot
+    advertise itself as stratum 0 ('0' in the field indicates 'unspecified').
+
+  Client Responsibilities:
+  ------------------------
+    Request from server?
+    Retain state after response from server in the form of an association
+
+  Protocol Variants:
+  ------------------
+    In the table below, each association (role and protocol variant) corresponds
+    to both an integer indicating the association and one indicating the packet
+    mode (for all roles that generate packets).
+
+    Association Mode  iAssocMode  iPacketMode
+    -----------------------------------------
+    Symmetric-Active  1           1 or 2
+    Symmetric-Passive 2           1
+    Client            3           4
+    Server            4           3
+    Broadcast Server  5           5
+    Broadcast Client  6           (n/a)
+
+    Symmetric:
+    ----------
+      Nodes operate as 'peers', implementing both server and client roles using
+      either a 'symmetric-active' or a 'symmetric-passive' association.
+      A symmetric-active node sends mode-1 packets to packets to a symmetric-
+      active peer association.  Alternatively a symmetric-passive association
+      can be mobilized upon arrival of a mode-1 packet which then sends mode-2
+      packets until timeout or error.
+
+    Client/Server:
+    --------------
+      Client sends mode-3 (client) packets to server. Server responds with
+      mode-4 (server) packets containing synchronization information.
+      Servers provide synchronization information to one or more clients but do
+      not accept synchronization from them.
+
+    Broadcast:
+    ----------
+      A broadcaster node sends periodic mode-5 packets which are received by
+      one or more mode-6 (broadcast client) associations.
+
+  Dynamic Server Discovery:
+  -------------------------
+    There are two special associations - 'manycast server' and 'manycast client'
+    - which provide a dynamic server discovery function.  A client first sends a
+    mode-3 packet with a time-to-live (TTL) value of 1 to a specially designated
+    IPv4 or IPv6 broadcast or multicast group address.  Recall that TTL value is
+    decremented at each hop and the packet is dropped when TTL reaches 0.  If no
+    response is received from the mode-3 packet, TTL is increased to 2 and the
+    packet is re-sent.  When the client receives a response from an NTP server,
+    an ephemeral association is mobilized for a pre-determined timeout.  The
+    client continues to increment TTL and send mode-3 packets until enough
+    associations are mobilized to perform the mitigation algorithms (described
+    below). If TTL reaches the maximum value of 255 without enough associations
+    mobilized, it will stop transmission for a timeout period to demobilize all
+    ephemeral associations.  The mitigation algorithms are run on all mobilized
+    associations to identify and use only the best candidates while all others
+    are allowed to timeout and de-mobilize.
+
+Terminology:
+------------
+  Association           A data structure for time keeping.  Can be 'persistent',
+                        'ephemeral', or 'preemptable'.
+

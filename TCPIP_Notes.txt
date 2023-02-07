@@ -264,7 +264,7 @@ Fundamental Networking Challenges and TCP/IP Solutions:
                     20      ftp-data    TCP
                     21      ftp         TCP
                     23      telnet      TCP
-                
+
             Sockets
                 A "socket" is the combination of an IP address and a port number which uniquely identifies a
                 single process on the entire network. Networking terminology can get a little confused, so
@@ -333,7 +333,6 @@ Link-Layer Protocols:
 
 IPv4 Special Use IP Addresses:
 ------------------------------
-
     Address Block       Scope           Notes
     -------------       -----           -----
     0.0.0.0/8           Software        Current network
