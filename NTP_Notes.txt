@@ -21,6 +21,8 @@ Simple Network Time Protocol (SNTP):
 
 General:
 --------
+  Original author and principal maintainer through v4: David L. Mills of
+  University of Delaware.
   Messages exchanged via UDP on port 123
 
 Architecture:
@@ -52,7 +54,15 @@ Architecture:
 
   Client Responsibilities:
   ------------------------
-    Request from server?
+    A client sends messages to a server every 2**T seconds where the "poll
+    exponent" T ranges from 4 (16s) to 17 (36hrs).  The value of T is determined
+    by the the Clock Discipline Algorithm (see below) to match the control loop
+    time constant (Tc).  The server responds to messages with an update interval
+    of 'mu' seconds.  For a stateless server, 'mu' = 2**T since it will respond
+    immediately to any received messages.  For an association of peer servers,
+    both sides must agree on a common poll exponent (equal to the minimum of the
+    values computed independently by both peers).  The NTP protocol provides a
+    negotiation mechanism for this purpose.
     Retain state after response from server in the form of an association
 
   Protocol Variants:
@@ -109,8 +119,117 @@ Architecture:
     associations to identify and use only the best candidates while all others
     are allowed to timeout and de-mobilize.
 
+  Setting System Clock:
+  ---------------------
+    The client platform (operating system) is assumed to provide two functions
+    for controlling the system clock.
+    The "time set" function (e.g. Unix settimeofday()) is used to set the system
+    time directly which the "clock adjust" function (e.g. Unix adjtime()) is
+    used to advance or retard the current time by a small amount.  The NTP clock
+    discipline algorithm will use the former if the adjustment is above a
+    certain threshold and the latter when it is below that threshold.
+
 Terminology:
 ------------
   Association           A data structure for time keeping.  Can be 'persistent',
                         'ephemeral', or 'preemptable'.
 
+Algorithms:
+-----------
+  The client keeps track of the following statistical values and updates them
+  after each message received from each server.
+
+  Hardware-specific:
+  ------------------
+    Frequency tolerance (PHI):  The maximum disciplined clock frequency
+                    uncertainty for a given system clock
+
+  Association-specific:
+  ---------------------
+    Upon receipt of each packet from a server, the client computes all of the
+    following values. A copy of these exists for every association (for every
+    server that responds to that client).
+
+    Offset (theta): The time offset between system clock and server clock
+                    This is the offset of maximum likelihood (compensating for
+                    path delays and tolerances)
+
+    Delay (delta):  The round-trip delay between client and server
+
+    Jitter (phi):   RMS average of most recent offset (theta) values
+
+    Dispersion (epsilon): The maximum error inherent in a measurement (depends
+                    on PHI, among other factors)
+
+
+  Combined Statistics:
+  --------------------
+    There exists only a single instance of each of these values kept by the
+    client.
+
+    System Offset (THETA): The average (possibly weighted?) of individual offsets
+                    (theta) for each association.
+
+    System Jitter (scripty theta): The nominal error in estimating system offset
+                    computed as the RMS average of difference between past system
+                    offsets (RMS average of dTHETA = THETA[n+1] - THETA[n])
+
+    Root Delay (DELTA): The accumulation of delay of each stratum from the root
+                    reference clock.
+
+    Root Dispersion (EPSILON): The accumulation of dispersion for each stratum
+                    from the root reference clock.
+
+    Synchronization Distance (GAMMA): The maximum error due to all causes.
+                    GAMMA = EPSILON + DELTA/2
+
+  Selection Algorithm:
+  --------------------
+    Uses Byzantine principles to cull "falsetickers" from the population of
+    associations (removing any clocks that seem wildly wrong).  This selection
+    process leaves a collection of "truechimers" (clocks that seem ok).
+
+  Clustering Algorithm:
+  ---------------------
+    Using statistical principles, condenses the collection of "truechimers" to
+    a smaller batch of "survivors" which are deemed most accurate.
+
+  Combining Algorithm:
+  --------------------
+    Computes a final clock offset from the pool of "survivors" from the
+    clustering algorithm (basically just averages the values).
+
+  Clock Discipline Process:
+  -------------------------
+    Feedback-based approach to controlling the system clock frequency to minimize
+    the final clock offset (better synchronize with UTC).
+
+  Clock Adjust Process:
+  ---------------------
+    I don't know why this exists beyond the discipline process.
+    Apparently this runs once a second to "inject a computed time offset and
+    maintain constant frequency" according to Mills.
+
+Data Types, Values, and Packets:
+--------------------------------
+  All time values are represented in twos-complement.
+  Network byte order (big-endian, zero at LHS).
+
+  Data Types:
+  -----------
+    NTP Date Format (128b) :  | [0:31] Era | [32:63] Timestamp | [64:127] Fraction |
+      Used where sufficient word size and storage is available.
+      Era is SIGNED integer. Era 0 starts Jan 1, 1900 at 00:00.  Era lasts for
+      2**32-1 seconds = 136 years, 36 days, 6 hrs, 28 min, 15 sec
+      Timestamp is UNSIGNED integer.
+
+    NTP Timestamp Format (64b) :           | [0:31]  Timestamp | [32:63]  Fraction |
+      Used in packet headers and anywhere else with limited word size
+      Timestamp is the same as that of the Data Format above. Era must be
+      divined by other means (e.g. querying whether computers exist).  Without
+      era information, we can't distinguish between (e.g.) January of 1900 and
+      February of 2036.
+
+    NTP Short Format (32b) :               | [0:15] Seconds | [16:31] Fraction |
+      Used in delay and dispersion header fields where range/resolution of other
+      field types are not needed.
