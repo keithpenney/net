@@ -1,0 +1,128 @@
+Internet Protocol v4 Packet Notes
+
+IPv4:
+-----
+  When a datagram is sent over IPv4, the full packet (at the "Internet Layer") is 20-bytes in length (or greater).
+  If the 'IHL' (see below) is > 5, the header length is 4*IHL bytes (octets) long.
+  The structure follows:
+  Header:
+  -------
+    | IP Header (>=20B) | Payload |
+     ____/\___________________________________________________________________________________________
+    /                                                                                                 \
+    | Version (4b) | IHL (4b) | DSCP (6b) | ECN (2b) | Total Length (16b) | ID (16b) | Flags (3b) |
+      Fragment Offset (13b) | TTL (8b) | Protocol (8b) | Header Checksum (16b) | Source IP Addr (32b) |
+      Dest IP Addr (32b) | [Options ((IHL-5)*32b)] |
+
+    Field Name      Length (bits)   Description
+    -------------------------------------------
+    Version         4               IP Protocol Version. Always '4' for IPv4
+    IHL             4               IP Header Length (in 32b increments). Min 5, max 15.
+    DSCP            6               Differentiated Services Code Point. Used for specialized service (i.e. VoIP)
+    ECN             2               Explicit Congestion Notification. Optional feature.
+    Total Length    16              The entire packet size in bytes.  Min = 20. Max = 65535
+    Identification  16              Primarily used for keeping track of fragmented datagrams.
+    Flags           3               Bitmask: Bit 0 = Rsvd; Bit 1 = "Don't Fragment" (DF); Bit 2 = "More Fragments" (MF)
+    Fragment Offset 13              For fragmented packets, holds the offset from beginning in 8-byte increments.
+    Time to Live    8               Specifies the time (in "hops") for the packet to survive.
+    Protocol        8               This is the protocol number (e.g. TCP = 6, UDP = 17).  See /etc/protocols.
+    Header Checksum 16              Every router computes the checksum of the header and compares it with this value.
+    Source IP Addr  32              IPv4 address of sender (field can be changed by Network Address Translation)
+    Dest IP Addr    32              IPv4 address of recipient (field can be changed by Network Address Translation)
+    Options         (IHL-5)*32      Additional options present if IHL>5
+
+  Variable Header Size:
+  ---------------------
+    The IPv4 header size is variable to provide additional "options" before the packet data.  This feature is not
+    often used and may be treated as a vulnerability by some cybersecurity policies; thus packets containing options
+    may be dropped/blocked.  The "options" field has its own syntax which will not be covered here.
+    The main takeaway is that offsets to all header fields is fixed while (byte) offset to payload is 4*IHL.
+
+  Fragmentation:
+  --------------
+    If a packet is too large for some node in a link to handle, it can optionally be fragmented into smaller packets.
+    If the "Don't Fragment" (DF) bit in the Flags field is set and fragmentation must occur at a node, the packet is
+    dropped.  The DF flag can be used if, for instance, a host does not have the resources to fragment/reassemble a
+    packet.  For a packet that has been fragmented into N packets ("sub-packets"), each "sub-packet" up to the N-1th
+    will have its "More Fragments" (MF) bit set in the Flags field.  The Nth sub-packet will have MF cleared, but will
+    have a non-zero Fragment Offset field to distinguish it from a non-fragmented packet.
+
+    To reassemble a fragmented packet, the "Fragment Offset" field is used.  Each sub-packet will have a non-zero offset
+    (measured in 8-byte increments).  The sub-packets can then arrive in any order and the packet can be reconstructed
+    completely.  If a single sub-packet is dropped or corrupted, data corruption will occur.  But because of the offset
+    feature (rather than a 'packet number' feature), the corruption is localized to the space of that sub-packet.  This
+    may leave other portions of the original packet useable.
+
+  Time-to-Live (TTL):
+  -------------------
+    The "Time to Live" (TTL) field is documented as the time in seconds for a packet to survive before it is dropped
+    (to prevent cascading network failure due to congestion).  In practice, each router in the route decrements the TTL
+    of each packet before transmitting to the next node.  If the TTL value reaches 0, the packet is dropped.  This can
+    be used to measure hops in the transport. When a packet is dropped, the router typically sends an "ICMP Time Exceeded"
+    message to the sender.
+
+====================
+== IP Header Path ==
+====================
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                                             \/
+           __________________________________/
+          /                           \
+(14)      | IP Header (20B) | Payload |
+                 \/
+             ____/\___________________________________________________________________________________________
+            /                                                                                                 \
+(14)        | Version (4b) | IHL (4b) | DSCP (6b) | ECN (2b) | Total Length (16b) | ID (16b) | Flags (3b) |
+              Fragment Offset (13b) | TTL (8b) | Protocol (8b) | Header Checksum (16b) | Source IP Addr (32b) |
+              Dest IP Addr (32b) | [Options ((IHL-5)*32b)] |
+
+Offsets to Important Fields:
+----------------------------
+  (Offsets relative to start of IPv4 header)
+  Offset  Field
+  -------------
+  2       Total Length
+  9       Protocol
+  10      Header Checksum
+  12      Source IP Addr
+  16      Dest IP Addr
+
+
+=====================
+== IP Payload Path ==
+=====================
+
+(byte offset) | FieldName (size) |
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                                             \/           \/
+           __________________________________/            /
+          /                           \                   |
+(14)      | IP Header (20B) | Payload |                   |
+                                \/                        |
+             ___________________/\_____________           |
+            /                                  \          |
+(14+4*IHL)  | Payload (1B*(Total Length - 20)) |          |
+                                   _______________________/
+                                  /            \
+(14+(Total Length))               | CRC32 (4B) |
+
+
+

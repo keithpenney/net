@@ -1,0 +1,52 @@
+Address Resolution Protocol
+
+General:
+  Mandatory for IP-compliant devices
+  Used by routers to determine if unknown addresses are present on the LAN.
+  ARP request is sent to all physically connected nodes on LAN.
+  If ARP request is received with own IP address in TPA field, must reply
+  with ARP response to alert the router to your presence.
+  Used to keep ARP table updated.
+
+=====================
+== ARP Packet Path ==
+=====================
+(offset)  |pkt|
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                                             \/
+           __________________________________/\___________________
+          /                                                       \
+(14)      | HTYPE (2B)   | PTYPE (2B)  | HLEN (1B)   | PLEN (1B)   |
+          |  OPER (2B) | SHA (6B) | SPA (4B) | THA (6B) | TPA (4B) |
+          |          (padding up to min packet size) (18B)         |
+
+Member  Bytes   Desc.
+---------------------
+HTYPE   2       Hardware type. Ethernet = 0x0001
+PTYPE   2       Protocol type. IPv4 = 0x0800
+HLEN    1       Hardware address length. Ethernet MAC is 6B long (0x06)
+PLEN    1       Protocol address length. IPv4 address is 4B long (0x04)
+OPER    2       Operation. 0x0001 = request; 0x0002 = reply
+SHA     6       Sender hardware address (e.g. MAC)
+SPA     4       Sender protocol address (e.g. IP addr)
+THA     6       Target hardware address (e.g. MAC)
+TPA     4       Target protocol address (e.g. IP addr)
+
+Offsets to Important Fields:
+Field    Offset (bytes) from Start of Ethernet Frame
+----------------------------------------------------
+PTYPE    16
+OPER     20
+SHA      22
+SPA      28
+THA      32
+TPA      38

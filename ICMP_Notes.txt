@@ -1,0 +1,56 @@
+Internet Control Message Protocol notes
+
+General:
+  Carried within IPv4 packet
+  Used by 'ping'
+  Various exploits stuff data into the unused portion of the packet to pass
+  through paywalls or firewalls (ICMP tunneling)
+  Identified by IPv4 header 'Protocol' field value of 1 (see /etc/protocols)
+
+Packet Structure:
+  Member    Size (bits)   Desc
+  ----------------------------
+  Type                8   ICMP type code
+  Code                8   ICMP subtype code
+  Checksum           16   Checksum calculated on ICMP header+data (see below)
+  Rest-of-Header     32   Contents vary based on ICMP type/subtype
+
+  Type:
+  -----
+    There are many ICMP type/subtype pairs, but the only ones I care about are:
+    Type    Subtype   Desc
+    ----------------------
+    0       0         Echo reply (reply to ping)
+    3       (many)    Destination unreachable (code specifies the reason)
+    8       0         Echo request (from ping)
+
+  Checksum:
+  ---------
+    Same checksum algorithm used for UDP/IP/TCP (RFC 1071)
+    When calculating checksum, clear checksum field (all 0s).
+
+====================
+== Packet Context ==
+====================
+
+(byte offset) | FieldName (size) |
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                                         \/
+           ______________________________/
+          /                           \
+(14)      | IP Header (20B) | Payload |
+                                 \/
+             ____________________/\_______________________________________
+            /                                                             \
+(34)        | Type (1B) | Code (1B) | Checksum (2B) | Rest-of-Header (4B) |
+
+
