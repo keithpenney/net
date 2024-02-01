@@ -158,6 +158,7 @@ IP Header Length (IHL) = 5
     Src Port    34          2
     Dest Port   36          2
     UDP Length  38          2
+    UDP Checksum 40         2
     UDP Data    42          (value at UDP Length field)
 
 IPv6:

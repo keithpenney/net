@@ -1,0 +1,107 @@
+Internet Protocol v6 Packet Notes
+
+RFC 2460: https://www.rfc-editor.org/info/rfc2460
+
+IPv6:
+-----
+  When a datagram is sent over IPv4, the full packet (at the "Internet Layer") is 20-bytes in length (or greater).
+  If the 'IHL' (see below) is > 5, the header length is 4*IHL bytes (octets) long.
+  The structure follows:
+  Header:
+  -------
+    | IPv6 Header (40B) | IPv6 Extension Header (??B) | Payload |
+     ____/\____________________________________________________
+    /                                                          \
+    | Version (4b)  |  Traffic Class (8b)  |  Flow Label (20b) |
+    | Payload Length (16b) | Next Header (8b) | Hop Limit (8b) |
+    |    Source IP Addr (128b)    |    Dest IP Addr (128b)     |
+
+    Field Name      Length (bits)   Description
+    -------------------------------------------
+    Version         4               IP Protocol Version. Always '4' for IPv4
+    Traffic Class   8               The current use is 6 bit Differentiated Services Code Point and a 2-bit Explicit
+                                    Congestion Notification field (MSB/LSB?)
+    Flow Label      20              Can be used to specify non-default quality-of-service (e.g. "real time")
+    Payload Length  16              Length of everything following this header (payload and any extension headers).
+    Next Header     8               An identifier for the following header type.  This can refer to a type
+                                    of IPv6 Extension header, or to a protocol number (Same as IPv4 'Protocol' field)
+                                    Common protocol numbers: TCP = 6, UDP = 17. See /etc/protocols.
+                                    The special value "59" indicates there is nothing following this header.  If the
+                                    payload length indicates more data following this header, it must be ignored.
+    Hop Limit       8               Same as IPv4 TTL (time-to-live). Decremented by 1 at each node and discarded at 0.
+    Source IP Addr  128             IPv6 address of sender
+    Dest IP Addr    128             IPv6 address of recipient
+
+  IPv6 Extension Headers
+  ----------------------
+    IPv6 defines a number of extension headers which follow the standard IPv6 header and precede the payload or another
+    extension header.  Some examples:
+      * Routing header: e.g. Type 0 routing header
+      * Fragment header: Used to send a packet larger than the MTU
+      * Options header: e.g. Hop-by-hop options header, Destination options header
+
+  Fragmentation:
+  --------------
+    Unlike IPv4, routers will not fragment IPv6 packets.  The host is expected to use "Path MTU discovery" to determine
+    the size of packets and send them pre-fragmented accordingly (with Fragment Extension Headers).
+
+====================
+== IP Header Path ==
+====================
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                                             \/
+           __________________________________/
+          /                           \
+(14)      | IPv6 Header (40B) | Payload |
+                 \/
+             ____/\____________________________________________________
+            /                                                          \
+(14)        | Version (4b)  |  Traffic Class (8b)  |  Flow Label (20b) |
+            | Payload Length (16b) | Next Header (8b) | Hop Limit (8b) |
+            |    Source IP Addr (128b)    |    Dest IP Addr (128b)     |
+
+Offsets to Important Fields:
+----------------------------
+  (Offsets relative to start of IPv6 header)
+  Offset  Field
+  -------------
+  0       Version
+  4       Payload Length
+  6       Next Header
+  8       Source IP Addr
+  24      Dest IP Addr
+
+
+=====================
+== IP Payload Path ==
+=====================
+
+(byte offset) | FieldName (size) |
+
+(-8)  | Layer 1 Packet (72-1530B) | Interpacket Gap (12B) |
+                   \/
+       ____________/\________________________________________________________
+      /                                                                      \
+(-8)  | Preamble (7B) | Start Frame (1B) | Layer 2 Ethernet Frame (64-1522B) |
+                                                         \/
+         ________________________________________________/\_______
+        /                                                         \
+(0)     | Ethernet Header (14B) | Payload (46-1500B) | CRC32 (4B) |
+                                             \/           \/
+           __________________________________/            /
+          /                           \                   |
+(14)      | IP Header (40B) | Payload |                   |
+                                \/                        |
+             ___________________/\_____________           |
+
+TODO - Include offset calculation procedure with N extension header fields
+
