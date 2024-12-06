@@ -1,0 +1,37 @@
+Domain Name Service/System Notes
+--------------------------------
+
+General:
+--------
+  DNS queries/responses can be carried over numerous transport protocols.
+
+  DNS-over-TCP/UDP (Do53):
+  ------------------------
+    DNS can be transported in both TCP and UDP payloads.
+    Both methods suffer from the shortcoming of lack of encryption/authentication, with UDP also
+    being limited by unreliable delivery and packet length restrictions.
+    When DNS is transported over UDP, a DNS server listens for queries at the reserved UDP port 53.
+    UDP/TCP request/response are single-packet clear-text. For UDP exchange, when the length of the
+    answer exceeds 512 bytes, Extension Mechanisms for DNS (EDNS) can be used.
+
+  DNS-over-TLS (DoT):
+  -------------------
+    DNS-over-TLS servers listen on TCP port 853.  Encryption is supported, but not mandatory.
+
+  DNS-over-HTTPS (DoH):
+  ---------------------
+    DNS query data can be carried within HTTPS packets (HTTP transported over TLS).  Uses TCP port 443,
+    like other HTTPS traffic.
+
+  DNS over QUIC (DoQ):
+  --------------------
+    Using the QUIC transport protocol, this method achieves privacy characteristic of DoT with latency
+    characteristic of DNS over UDP.
+
+Related Unix Commands/Applications:
+-----------------------------------
+  $ nslookup DOMAIN [DNS_SERVER]
+
+TLS = Transport Layer Security
+QUIC = (originally stood for Quick UDP Internet Connections, but now doesn't stand for anything)
+DNSCrypt = An alternate protocol that uses TCP/UDP port 443, the same as encrypted HTTPS traffic.

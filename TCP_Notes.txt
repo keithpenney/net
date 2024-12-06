@@ -1,0 +1,54 @@
+Transport Control Protocol Notes
+
+IPv4:
+-----
+  TCP Datagram Structure:
+  -----------------------
+    When the payload of an IP packet is a TCP segment (informally called a 'packet'), its contents are structured as a
+    packet with its own header structure.
+      | IP Header | TCP Segment |
+         _____________/\____
+        /                   \
+        | TCP Header | Data |
+           ___/\_________________________________________________________
+          /                                                              \
+          |       Source Port (16b)       |        Dest Port (16b)       |
+          |                     Sequence Number (32b)                    |
+          |                  Acknowledgement Number (32b)                |
+          | Data Offset (4b) | Reserved (4b) | Flags (8b) | Window (16b) |
+          |        Checksum (16b)         |      Urgent Pointer (16b)    |
+          |                Options (optional 32b to 288b)                |
+
+    Where | Flags (8b) | = | CWR | ECE | URG | ACK | PSH | RST | SYN | FIN |
+
+  Field Descriptions:
+  -------------------
+    Source Port: Socket port number for source
+    Dest Port: Socket port number for dest
+    Sequence Number: If the SYN flag is set, this is the initial sequence number. The sequence number of the
+                     actual first data byte and the acknowledged number in the corresponding ACK are this
+                     sequence number + 1.
+                     If the SYN flag is cleared, this is the accumulated sequence number of the first data byte
+                     of this segment for the current session.
+    Acknowledgement Number: If the ACK flag is set, this is the next sequence number that the sender of the ACK
+                     is expecting and acknowledges receipt of all prior bytes (if any).  The first ACK sent by
+                     each end acknowledges the other end's initial sequence number itself, but no data.
+    Data Offset: Specifies the size of the TCP header in 32-bit words.  Min 5 words, max 15 words.
+                     If "Data Offset" is 5, there is no Options section.  Otherwise, the Options section is
+                     32*(Data Offset - 5) bits = 4*(Data Offset - 5) bytes long.
+    Flags:
+      CWR: Congestion window reduced. Set by the sending host to indicate it received a TCP segment with the
+           ECE flag set and responded in congestion control mechanism.
+      ECE: ECN-Echo. If SYN flag is set, the TCP peer is ECN capable. If SYN flag is cleared, a packet was
+           received with its ECN flag set (in IP header) during normal transmission.  In this case, it serves
+           as an indication of network congestion (or impending congestion) to the TCP sender.
+      URG: If set, the Urgent Pointer field is valid.  Otherwise, the Urgent Pointer field is invalid.
+      ACK: If set, the Acknowledgement Number field is valid.  Otherwise, the Acknowledgement Number field is invalid.
+      PSH: Push function. Asks to push the buffered data to the receiving application.
+      RST: Reset the connection.
+      SYN: Synchronize sequence numbers. Only the first packet sent from each end should have this flag set.
+           See also ECE flag and Sequence Number field.
+      FIN: Last packet from sender.
+
+ECN = Explicit Congestion Notification. See IPv4_Notes.txt
+

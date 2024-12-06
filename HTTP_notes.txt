@@ -1,0 +1,75 @@
+HTTP Response Codes:
+  https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+
+  100: Continue
+
+  101: Switching Protocols
+
+  102: Processing
+
+  200: OK
+    In response to GET:
+      The resource has been fetched and transmitted in the message body
+    In response to HEAD:
+      The representation headers are included in the response without any message body.
+    In response to PUT or POST:
+      The resource describing the result of the action is transmitted in the message body.
+    In response to TRACE:
+      The message body contains the request message as received by the server.
+
+  201: Created
+
+  202: Accepted
+
+  204: No Content
+
+  Redirection:
+    300: Multiple Choices
+
+    301: Moved Permanently
+
+    302: Found
+
+    303: See Other
+
+    304: Not Modified
+
+    307: Temporary Redirect
+
+    308: Permanent Redirect
+
+  Client Error Responses:
+    400: Bad request
+
+    401: Unauthorized (unauthenticated)
+
+    403: Forbidden (unauthorized)
+
+    403: Forbidden
+
+    404: Not Found
+
+    408: Not Found
+
+    410: Gone
+
+    411: Length Required
+
+    418: I'm a teapot
+
+    428: Precondition Required
+
+    429: Too Many Requests
+
+  Server Error Responses:
+    500: Internal Server Error
+
+    501: Not Implemented
+
+    502: Bad Gateway
+
+    503: Service Unavailable
+
+    504: Gateway Timeout
+
+    505: HTTP Version Not Supported

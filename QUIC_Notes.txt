@@ -1,0 +1,2 @@
+QUIC = (originally stood for Quick UDP Internet Connections, but now doesn't stand for anything)
+Alternate transport layer to TCP
