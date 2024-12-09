@@ -46,11 +46,30 @@ PAYLOAD_OFFSET_ICMP_CHECKSUM = 2
 PAYLOAD_OFFSET_ICMP_REST_OF_HEADER = 4
 
 # == UDP ==
-PAYLOAD_OFFSET_UDP_SRC_PORT = 14
-PAYLOAD_OFFSET_UDP_DEST_PORT = 16
-PAYLOAD_OFFSET_UDP_LENGTH   = 18
-PAYLOAD_OFFSET_UDP_CHECKSUM = 20
-PAYLOAD_OFFSET_UDP_DATA     = 22
+# These seem to be relative to the start of the IP header, but according to the usage
+# it looks like I should be using offsets relative to the start of the UDP header
+#PAYLOAD_OFFSET_UDP_SRC_PORT = 14
+#PAYLOAD_OFFSET_UDP_DEST_PORT = 16
+#PAYLOAD_OFFSET_UDP_LENGTH   = 18
+#PAYLOAD_OFFSET_UDP_CHECKSUM = 20
+#PAYLOAD_OFFSET_UDP_DATA     = 22
+PAYLOAD_OFFSET_UDP_SRC_PORT = 0
+PAYLOAD_OFFSET_UDP_DEST_PORT = 2
+PAYLOAD_OFFSET_UDP_LENGTH   = 4
+PAYLOAD_OFFSET_UDP_CHECKSUM = 6
+PAYLOAD_OFFSET_UDP_DATA     = 8
+
+# == TCP ==
+PAYLOAD_OFFSET_TCP_SRC_PORT = 0
+PAYLOAD_OFFSET_TCP_DEST_PORT = 2
+PAYLOAD_OFFSET_TCP_SEQ_NUM = 4
+PAYLOAD_OFFSET_TCP_ACK_NUM = 8
+PAYLOAD_OFFSET_TCP_DATA_OFFSET = 12
+PAYLOAD_OFFSET_TCP_FLAGS = 13
+PAYLOAD_OFFSET_TCP_WINDOW = 14
+PAYLOAD_OFFSET_TCP_CHECKSUM = 16
+PAYLOAD_OFFSET_TCP_URGENT_POINTER = 18
+PAYLOAD_OFFSET_TCP_OPTIONS = 20
 
 # ===== Ethertypes =====
 ETHERTYPE_IPV4      = 0x0800
@@ -174,6 +193,8 @@ def _ipv4_decoder(pkt):
             _ipv4_icmp_decoder(payload)
         elif (protocol == IP_PROTOCOL_UDP):
             _ipv4_udp_decoder(payload)
+        elif (protocol == IP_PROTOCOL_TCP):
+            _ipv4_tcp_decoder(payload)
         else:
             print("No decoder for {}".format(_protostr))
     if (len(pkt) > 14+total_len):
@@ -210,6 +231,42 @@ def _ipv4_udp_decoder(payload):
     data = payload[PAYLOAD_OFFSET_UDP_DATA:]
     print("UDP_DATA: {}".format([hex(x) for x in data]))
     return
+
+def _get2(payload, offset)
+    return (payload[offset] << 8) + payload[offset+1]
+
+def _get4(payload, offset)
+    return (payload[offset] << 24) + (payload[offset+1] << 16) + (payload[offset+2] << 8) + payload[offset+3]
+
+def _ipv4_tcp_decoder(payload):
+    src_port = _get2(payload, PAYLOAD_OFFSET_TCP_SRC_PORT)
+    print("SRC_PORT: {}".format(src_port))
+    dest_port = _get2(payload, PAYLOAD_OFFSET_TCP_DEST_PORT)
+    print("DEST_PORT: {}".format(dest_port))
+    seq_num = _get4(payload, PAYLOAD_OFFSET_TCP_SEQ_NUM)
+    print("SEQUENCE_NUMBER: {}".format(seq_num))
+    ack_num = _get4(payload, PAYLOAD_OFFSET_TCP_ACK_NUM)
+    print("ACK_NUMBER: {}".format(ack_num))
+    data_offset = (payload[PAYLOAD_OFFSET_TCP_DATA_OFFSET] >> 4) & 0x0f
+    if (data_offset < 5) or (data_offset > 15):
+        raise Exception("Invalid TCP Data Offset field value {}".format(data_offset))
+    print("Data offset: {} bytes".format(4*data_offset))
+    flags = payload[PAYLOAD_OFFSET_TCP_FLAGS]
+    print("FLAGS: 0x{:x}".format(flags))
+    window = _get2(payload, PAYLOAD_OFFSET_TCP_WINDOW)
+    print("WINDOW: {}".format(window))
+    checksum = _get2(payload, PAYLOAD_OFFSET_TCP_CHECKSUM)
+    print("WINDOW: {}".format(window))
+    urg_ptr = _get2(payload, PAYLOAD_OFFSET_TCP_URGENT_POINTER)
+    print("Urgent Pointer: {}".format(urg_ptr))
+    if 4*data_offset > PAYLOAD_OFFSET_TCP_OPTIONS:
+        _ipv4_tcp_options(payload[PAYLOAD_OFFSET_TCP_OPTIONS:4*data_offset])
+    return
+
+def _ipv4_tcp_options(payload):
+    print("TODO: IPv4 TCP Options Decoder")
+    return
+
 
 def _arp_decoder(pkt):
     # HTYPE (ethernet = 0x0001)

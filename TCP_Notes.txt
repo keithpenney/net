@@ -1,5 +1,11 @@
 Transport Control Protocol Notes
 
+History:
+--------
+  Original: RFC 793
+    Obsoleted Addenda: RFC 879, 2873, 6093, 6429, 6528, 6691
+  Current:  RFC 9293
+
 IPv4:
 -----
   TCP Datagram Structure:
@@ -50,5 +56,39 @@ IPv4:
            See also ECE flag and Sequence Number field.
       FIN: Last packet from sender.
 
+    Window: Specifies the number of "window size units" that the sender of this segment is currently willing to receive.
+            (See "Window Scaling")
+
+    Checksum: A 16-bit checksum of the TCP header, the payload, and an IP pseudo-header including the source and dest
+              IP addresses, the protocol number (TCP=6), and the length of the TCP header+payload.
+
+Options:
+--------
+  The optional "Options" field in the TCP header is a concatenated list of various options, each with the following
+  format:
+    | Option-Kind (8b) | Option-Length (0b/8b) | Option-Data (variable) |
+
+  Option-Kind determines the meaning of the bytes that follow.
+  Option-Length specifies the length in bytes of the entire entry (including itself and the "Option-Kind" field).
+  Thus, the size of the Option-Data field is Option-Length-2.
+
+  Option-Kind Option-Length Option-Data   Meaning
+  -----------------------------------------------
+  0           N/A           N/A           End of options list
+  1           N/A           N/A           No operation (used to align options field to 32-bit boundary)
+  2           4             SS            Maximum segment size (2-bytes, since
+  3           3             S             Window scale (See "Window Scaling")
+  4           2             N/A           Selective Acknowledgement permitted
+  5           (10,18,26,34) BBBB,EEEE...  Selective ACK of a block between 32-bit pointers (BBBB, EEEE)
+                                          Can selectively ACK up to 4 blocks.
+  8           10            TTTT,EEEE     Timestamp and echo of previous timestamp
+  28          4             (empty?)      User Timeout Option. See RFC 5482
+  29          N             (?)           TCP Authentication Option. See RFC 5925
+  30          N             (?)           Multipath TCP (MPTCP).
+
 ECN = Explicit Congestion Notification. See IPv4_Notes.txt
+
+Window Scaling:
+---------------
+  TODO
 
